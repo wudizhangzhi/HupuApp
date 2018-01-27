@@ -1,3 +1,3 @@
 # coding=utf8
 
-from hupu.messages import *
+# from hupu.messages import *

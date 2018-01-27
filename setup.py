@@ -11,7 +11,7 @@ install_requires = open("requirements.txt").readlines()
 
 setup(
     name='HupuApp',
-    packages=find_packages(exclude=('test',)),
+    packages=find_packages(exclude=('hupu.test',)),
     package_data={'hupu': ['tac.csv']},
     version=hupu.__version__,
     author=hupu.__author__,
