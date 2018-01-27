@@ -10,12 +10,13 @@ import time
 
 import colored
 import requests
-import websocket
 
 from hupu.api import logger
 from hupu.utils import colored_text, parse_message
 
 log = logger.getLogger(__name__)
+import websocket
+
 
 
 class HupuLiveWebSocket(object):
@@ -138,7 +139,9 @@ class HupuLiveWebSocket(object):
         log.debug('=== on close ===')
 
     def on_open(self, ws, *args, **kwargs):
-        print('直播室连接中...')
+        print('===============\n\r')
+        print('|直播室连接中...|\n\r')
+        print('===============\n\r')
         log.debug('=== on open ===')
 
     def heart_beat(self, ws):

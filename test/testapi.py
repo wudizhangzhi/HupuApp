@@ -5,9 +5,10 @@
 
 import sys
 import locale
+from logging.handlers import RotatingFileHandler
+
 locale.setlocale(locale.LC_ALL, '')
 import time
-
 sys.path.append('..')
 
 
@@ -34,8 +35,25 @@ def test_unicode():
     time.sleep(1)
     curses.endwin()
 
+def test_logger():
+    import logging
+    log = logging.getLogger('websocket')
+    fh = RotatingFileHandler('log.log')
+    fh.setLevel(logging.DEBUG)
 
+    fh.setFormatter(logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(name)s:%(lineno)s: %(message)s'))
+    log.addHandler(fh)
+    # logger.setLevel(logging.CRITICAL)
+    # logger.setLevel(logging.CRITICAL)
+    # logger.setLevel(logging.CRITICAL)
+    # logger.setLevel(logging.CRITICAL)
+    import websocket
+    from websocket import _logging
+
+    _logging.error('hello')
 
 if __name__ == '__main__':
     # test_news_detail()
-    test_unicode()
+    # test_unicode()
+    test_logger()

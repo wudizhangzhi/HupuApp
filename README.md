@@ -69,3 +69,4 @@ Options:
 * [x] curses 熟悉
 * [ ] 新闻的显示问题
 * [ ] python2, python3的兼容问题
+* [ ] wesocket-client loging有问题.

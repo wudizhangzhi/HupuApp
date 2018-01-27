@@ -32,11 +32,12 @@ import time
 from six import text_type
 
 from hupu.api import logger
+
+log = logger.getLogger(__name__)
 from hupu.utils import purge_text, text_to_list
 from hupu.terminalsize import get_terminal_size
 from hupu.hupulivewebsocket import HupuSocket
 
-log = logger.getLogger(__name__)
 
 shortcut = [
     ['j    ', 'Down      ', '下移'],

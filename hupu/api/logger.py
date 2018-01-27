@@ -4,9 +4,9 @@
 # @Date:   2018-08-24 21:51:57
 
 import logging
-from logging.handlers import  RotatingFileHandler
+from logging.handlers import RotatingFileHandler
 
-LOG_PATH = 'hupu.log'
+LOG_PATH = '/var/log/hupu.log'
 
 
 def getLogger(name):
