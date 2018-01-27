@@ -52,6 +52,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+*.log.1
 local_settings.py
 
 # Flask stuff:
@@ -99,3 +100,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+.DS_Store
+.idea
+*.pcap
