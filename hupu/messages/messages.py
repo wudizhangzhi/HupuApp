@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
+from six import python_2_unicode_compatible
 from hupu.messages.entries import StringEntry, IntEntry, ListEntry
-
 from hupu.api import logger
 
 log = logger.getLogger(__name__)

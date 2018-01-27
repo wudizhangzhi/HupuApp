@@ -2,7 +2,13 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
+from __future__ import print_function
+from __future__ import absolute_import
+
 import six
+import sys
+
+PY2 = sys.version_info[0] == 2
 
 
 def get_value(instance, path, default=None):
@@ -41,6 +47,8 @@ def get_value_list(instance, path, default=None):
 
 def to_text(value, encoding="utf-8"):
     if isinstance(value, six.text_type):
+        if PY2:
+            value = value.encode(encoding)
         return value
     if isinstance(value, six.binary_type):
         return value.decode(encoding)
