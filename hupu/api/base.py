@@ -13,7 +13,7 @@ except ImportError:
 from user_agent import generate_user_agent
 
 from hupu.utils import getSortParam, get_android_id, get_random_Imei
-from . import logger
+from hupu.api import logger
 
 log = logger.getLogger(__name__)
 

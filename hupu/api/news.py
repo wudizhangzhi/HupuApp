@@ -6,8 +6,8 @@
 
 import time
 
-from . import logger
-from .base import Base
+from hupu.api import logger
+from hupu.api.base import Base
 from hupu.messages.messages import News, NewsDetail
 
 log = logger.getLogger(__name__)

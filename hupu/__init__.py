@@ -6,7 +6,7 @@
 
 __version__ = '1.0.0'
 __author__ = 'wudizhangzhi'
-# __all__ = ['HupuApp']
+__all__ = ['HupuApp']
 
 
-from .hupu import HupuApp
+from hupu import api, hupuapp, messages, screen, hupulivewebsocket, utils

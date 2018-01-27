@@ -31,9 +31,9 @@ import time
 
 from six import text_type
 
-from api import logger
-from utils import purge_text, text_to_list
-from terminalsize import get_terminal_size
+from hupu.api import logger
+from hupu.utils import purge_text, text_to_list
+from hupu.terminalsize import get_terminal_size
 
 log = logger.getLogger(__name__)
 

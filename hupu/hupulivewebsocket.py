@@ -12,7 +12,7 @@ import colored
 import requests
 import websocket
 
-from api import logger
+from hupu.api import logger
 from hupu.utils import colored_text, parse_message
 
 log = logger.getLogger(__name__)

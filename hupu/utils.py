@@ -19,8 +19,8 @@ except ImportError:
 
 from colored import stylize
 
-from api import logger
-from messages.messages import SocketMessage
+from hupu.api import logger
+from hupu.messages.messages import SocketMessage
 
 log = logger.getLogger(__name__)
 

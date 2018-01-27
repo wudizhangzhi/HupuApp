@@ -24,9 +24,9 @@ Options:
 import docopt
 import requests
 
-from api.live import LiveMinxin
-from api.login import LoginMixin
-from api.news import NewsMixin
+from hupu.api.live import LiveMinxin
+from hupu.api.login import LoginMixin
+from hupu.api.news import NewsMixin
 
 try:
     # 不打印ssl警告
@@ -34,8 +34,8 @@ try:
 except ImportError:
     pass
 
-from screen import Screen
-from api import logger
+from hupu.screen import Screen
+from hupu.api import logger
 
 log = logger.getLogger(__name__)
 
