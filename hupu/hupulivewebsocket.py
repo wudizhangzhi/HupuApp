@@ -92,7 +92,6 @@ class HupuLiveWebSocket(object):
             # msg = '5::/nba_v1:{"args":[{"room":"NBA_HOME"}],"name":"join"}'
             msg = self.msg_send_to_get_match
         else:  # 数据部分
-            # TODO
             socket_message = parse_message(message)
 
             if socket_message.room == 'NBA_HOME':

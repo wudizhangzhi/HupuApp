@@ -29,6 +29,7 @@ import time
 from six import text_type
 
 from api import logger
+from utils import purge_text, text_to_list
 
 log = logger.getLogger(__name__)
 
@@ -41,7 +42,8 @@ shortcut = [
 
 
 class Screen(object):
-    def __init__(self, seq=(), **kwargs):
+    def __init__(self, hupuapp, seq=(), **kwargs):
+        self.hupuapp = hupuapp
         self._t_columns, self._t_lines = os.get_terminal_size()
 
         self.title = '虎扑 Proudly presented by JRs.'
@@ -120,6 +122,8 @@ class Screen(object):
                 self.build_games_menu()
             elif self.mode == 'news':
                 self.build_news_menu()
+            elif self.mode == 'newsdetail':
+                self.build_news_detail()
 
     def set_screen(self, lines):
         self._screen_lines = lines
@@ -128,11 +132,14 @@ class Screen(object):
         self._screen_lines.append(p_object)
 
     def set_mode(self, mode):
+        self._arrow_index = 0  # 箭头还原
         if mode == 'live':
             self.mode_title = '今日比赛:'
-            # TODO 获取还有其他操作
+            # TODO 或许还有其他操作
         elif mode == 'news':
             self.mode_title = '今日新闻:'
+        elif mode == 'newsdetail':
+            pass
 
         self.mode = mode
         self.display()
@@ -196,24 +203,26 @@ class Screen(object):
                 self.screen.addstr(i + start_index, 0, self._add_arrow(i, line))
         self.screen.refresh()
 
-    def listen(self):
-        while True:
-            x = self.screen.getch()
-            if x in [ord('j'), curses.KEY_DOWN]:
-                self.move_down()
-            elif x in [ord('k'), curses.KEY_UP]:
-                self.move_up()
-            elif x == ord('q'):
-                self.quit()
-                break
-            elif x == ord(' '):
-                self.screen.clear()
-                self.screen.refresh()
-                if self.mode == 'live':
-                    self.choose_game(self._arrow_index)
+    def build_news_detail(self, newsdetail=None):
+        # 第一行中间显示标题
+        newsdetail = newsdetail or self.newsdetail
+        title = newsdetail.title
+        x = abs((self._t_columns - len(title)) // 2)
+        self.screen.addstr(0, x, title[:self._t_columns], curses.color_pair(1))
 
-                elif self.mode == 'news':
-                    self.choose_news(self._arrow_index)
+        # 空一行
+        start_index = 2
+        # 获取可视范围
+        line_max = self._t_lines - start_index - 4
+        show_end = self._arrow_index + 1 if self._arrow_index >= line_max else line_max
+        show_start = show_end - line_max if show_end > line_max else 0
+
+        for i, line in enumerate(self._screen_lines[show_start:show_end]):
+            if i + show_start == self._arrow_index:
+                self.screen.addstr(i + start_index, 0, line, curses.A_REVERSE)
+            else:
+                self.screen.addstr(i + start_index, 0, line)
+        self.screen.refresh()
 
     def choose_game(self, index):
         from hupulivewebsocket import HupuSocket
@@ -229,7 +238,12 @@ class Screen(object):
 
     def choose_news(self, index):
         news = self._screen_lines[index]
-        # TODO
+        newsdetail = self.hupuapp.getNewsDetailSchema(news.nid)
+        self.newsdetail = newsdetail  # 设置具体新闻
+        # 正文
+        content = purge_text(newsdetail.content)
+        self.set_screen(text_to_list(content, self._t_columns - 5))
+        self.set_mode('newsdetail')
 
     @property
     def endmsg(self):
@@ -243,3 +257,27 @@ class Screen(object):
         self.screen.refresh()
         time.sleep(2)
         curses.endwin()
+
+    def listen(self):
+        while True:
+            x = self.screen.getch()
+            if x in [ord('j'), curses.KEY_DOWN]:
+                self.move_down()
+            elif x in [ord('k'), curses.KEY_UP]:
+                self.move_up()
+            elif x == ord('q'):
+                if self.mode == 'newsdetail':
+                    news = self.hupuapp.getNews()
+                    self.set_screen(news)
+                    self.set_mode('news')
+                else:
+                    self.quit()
+                    break
+            elif x == ord(' '):
+                self.screen.clear()
+                self.screen.refresh()
+                if self.mode == 'live':
+                    self.choose_game(self._arrow_index)
+
+                elif self.mode == 'news':
+                    self.choose_news(self._arrow_index)

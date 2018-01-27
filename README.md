@@ -1,7 +1,7 @@
 # 虎扑篮球直播命令行版  
 ![Duncan](images/Duncan.jpg)
 
-灵感来自另一位JR, 本来想fork他的工程继续改的,但是发现自己都没用到他的代码。所以就自己新建一个项目了.
+灵感来自另一位[JR](https://github.com/chenjiandongx/HupuLive), 本来想fork他的工程继续改的,但是发现自己都没用到他的代码。所以就自己新建一个项目了.
 
 ### 测试环境
 * macos 10.12.6
@@ -10,12 +10,43 @@
 ## requirements
 
 ```
-lxml==3.7.3
+# lxml==3.7.3
 requests==2.18.4
 six==1.11.0
 docopt==0.6.2
 user_agent==0.1.9
 ```
+
+## 使用指南
+```python
+"""Hupu.
+    Proudly presented by Hupu JRs.
+
+Usage:
+    hupu [-m MODE] [-u USERNAME] [-p PASSWORD] [-a APIVERSION]
+    hupu -h | --help
+    hupu -v | --version
+
+Tips:
+    Please hit Ctrl-C on the keyborad when you want to interrupt the game live.
+
+Options:
+    -u --username    input username.
+    -p --password    input password.
+    -a --apiversion  api version.[default: 7.1.15]
+    -m --mode        run mode.[default: live, available: live news...]
+    -h --help        Show this help message and exit.
+    -v --version     Show version.
+"""
+```
+
+
+## 虎扑直播
+
+
+## 虎扑新闻
+
+![虎扑新闻](images/hupu_news.gif)
 
 <!-- ### 如何安装
 1. ``` git clone https://github.com/chenjiandongx/HupuLive.git ```
@@ -65,12 +96,11 @@ user_agent==0.1.9
 * [x] http接口get, post, 参数规则
 * [x] 获取比赛列表
 * [x] 获取直播文字历史记录
-* [ ] 命令行界面的设计
+* [x] 命令行界面的设计
 * [ ] 框架的设计
 * [ ] 基类的设计
 * [ ] websocket的研究
 * [x] 直播数据tcp的连接
 * [x] package 的 import 问题
-* [ ] 心跳延续的问题
-* [ ] curses 熟悉
-* [ ] websocket多次返回比赛列表之后没有更多文字直播信息了？
+* [x] 心跳延续的问题
+* [x] curses 熟悉

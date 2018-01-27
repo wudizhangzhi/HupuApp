@@ -3,10 +3,18 @@
 import json
 import os
 import random
+import re
 from hashlib import md5
 
+# TODO
+try:
+    from html import unescape
+except ImportError:
+    from HTMLParser import HTMLParser
+
+    unescape = HTMLParser().unescape
+
 from colored import stylize
-from six import text_type
 
 from api import logger
 from messages.messages import LiveMessage, ScoreBoard, SocketMessage
@@ -85,3 +93,11 @@ def parse_message(message):
 
 def colored_text(text, *style):
     return stylize(text, *style)
+
+
+def purge_text(text):
+    return unescape(re.sub(r'<[^>]+>|[\n\r\t]+', '', text))
+
+
+def text_to_list(text, width):
+    return re.findall(r'.{%s}' % width, text)

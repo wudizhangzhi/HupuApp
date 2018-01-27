@@ -140,7 +140,7 @@ class News(BaseMessage):
     虎扑新闻
     """
     __type__ = 'news'
-    news_type_list = [1, 3, 5]
+    news_type_list = [1, 5]
 
     nid = IntEntry('nid')
     title = StringEntry('title')

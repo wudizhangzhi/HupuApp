@@ -34,7 +34,7 @@ class NewsMixin(Base):
     def getNews(self):
         r = self._getNews().json()
         log.debug('获取新闻: {}'.format(r))
-        return [News(news) for news in r['result']['data']]
+        return [News(news) for news in r['result']['data'] if news.get('type') in News.news_type_list]
 
     def _getNewsDetailSchema(self, nid):
         return self.sess.get(
@@ -57,7 +57,9 @@ class NewsMixin(Base):
         )
 
     def getNewsDetailSchema(self, nid):
-        return NewsDetail(self._getNewsDetailSchema(nid).json()['result'])
+        j = self._getNewsDetailSchema(nid).json()
+        log.debug(j)
+        return NewsDetail(j['result'])
 
 
 if __name__ == '__main__':

@@ -25,14 +25,11 @@ from api.login import LoginMixin
 from api.news import NewsMixin
 
 try:
+    # 不打印ssl警告
     requests.packages.urllib3.disable_warnings()
 except ImportError:
     pass
-import time
-from hashlib import md5
-import json
 
-from utils import getSortParam
 from screen import Screen
 from api import logger
 
@@ -52,7 +49,7 @@ class Hupu(LiveMinxin, NewsMixin, LoginMixin):
         mode = mode.lower()
         assert mode in MODE_LIST, AttributeError('Expect mode is {}, got {}.'.format(', '.join(MODE_LIST), mode))
 
-        screen = Screen(client_id=self.client)  # 显示的屏幕
+        screen = Screen(self, client_id=self.client)  # 显示的屏幕
 
         if mode == 'live':  # 文字直播模式
             games = self.getGames()
