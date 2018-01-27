@@ -11,7 +11,7 @@ install_requires = open("requirements.txt").readlines()
 
 setup(
     name='HupuApp',
-    packages=find_packages(exclude=('hupu.test',)),
+    packages=find_packages(exclude=('test',)),
     package_data={'hupu': ['tac.csv']},
     version=hupu.__version__,
     author=hupu.__author__,
@@ -24,10 +24,14 @@ setup(
     keywords='leetcode crawler',
     requires=["bs4", "docopt", "requests", "lxml"],
     entry_points={
-        "console_scripts": ["HupuApp = hupu.hupu:main", ]
+        "console_scripts": ["HupuApp = hupu.hupuapp:main", ]
     },
     python_requires='>=2.6,',
     install_requires=install_requires,
+    include_package_data=True,
+    data_files=[
+        ('HupuApp', ['requirements.txt', ]),
+    ],
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha

@@ -4,7 +4,7 @@
 # @Author  : wudizhangzhi
 
 
-__version__ = '1.0.0'
+__version__ = '1.0.2'
 __author__ = 'wudizhangzhi'
 __all__ = ['HupuApp', 'main']
 
