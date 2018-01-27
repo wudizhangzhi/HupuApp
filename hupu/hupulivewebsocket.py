@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
-from __future__ import absolute_import
 from __future__ import absolute_import, unicode_literals
 from __future__ import print_function
 
@@ -13,8 +12,10 @@ import requests
 
 from hupu.api import logger
 from hupu.utils import colored_text, parse_message
+from hupu.messages.entries import to_text
 
 log = logger.getLogger(__name__)
+logger.getLogger('websocket')
 import websocket
 
 
@@ -86,6 +87,7 @@ class HupuLiveWebSocket(object):
         :param msg: 
         :return: 
         """
+        message = to_text(message)
         log.debug('receive: {}'.format(message))
         msg = ''  # 返回的消息
         if message == '1::':
@@ -136,12 +138,13 @@ class HupuLiveWebSocket(object):
         log.error('=== onerror: {} ==='.format(error))
 
     def on_close(self, ws):
+        print('\n\r')
+        print('|文字直播关闭|\n\r')
         log.debug('=== on close ===')
 
     def on_open(self, ws, *args, **kwargs):
-        print('===============\n\r')
+        print('\n\r')
         print('|直播室连接中...|\n\r')
-        print('===============\n\r')
         log.debug('=== on open ===')
 
     def heart_beat(self, ws):
@@ -193,9 +196,9 @@ class HupuSocket(HupuLiveWebSocket):
         text = '{home} {home_score}:{away_score} {away}  {process}'.format(
             home_score=home_score,
             away_score=away_score,
-            process=scoreboard.process,
-            home=self.game.home_name,
-            away=self.game.away_name,
+            process=to_text(scoreboard.process),
+            home=to_text(self.game.home_name),
+            away=to_text(self.game.away_name),
         )
         return text
 

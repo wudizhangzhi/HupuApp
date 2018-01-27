@@ -239,7 +239,7 @@ class Screen(object):
         hs.run()
         # except KeyboardInterrupt:
         log.debug('文字直播停止')
-        print('文字直播停止\n\r')
+        # print('文字直播停止\n\r')
         time.sleep(1)
         self.display()
 

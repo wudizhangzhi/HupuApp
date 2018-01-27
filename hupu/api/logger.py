@@ -4,9 +4,10 @@
 # @Date:   2018-08-24 21:51:57
 
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 
-LOG_PATH = '/var/log/hupu.log'
+LOG_PATH = os.path.join(os.path.expanduser('~'), 'hupu.log')
 
 
 def getLogger(name):
