@@ -67,4 +67,5 @@ Options:
 * [x] package 的 import 问题
 * [x] 心跳延续的问题
 * [x] curses 熟悉
-* [x] 新闻的显示问题
+* [ ] 新闻的显示问题
+* [ ] python2, python3的兼容问题
