@@ -9,7 +9,7 @@ from colored import stylize
 from six import text_type
 
 from api import logger
-from messages.messages import LiveMessage, ScoreBoard
+from messages.messages import LiveMessage, ScoreBoard, SocketMessage
 
 log = logger.getLogger(__name__)
 
@@ -77,24 +77,10 @@ def getSortParam(**kwargs):
     return md5(result.encode('utf8')).hexdigest()
 
 
-def parser_message(message):
-    response = []
-    scoreboard = None
-    try:
-        if isinstance(message, text_type):
-            message = json.loads(message)
-        args = message['args']
-        result = args[0]['result']
-        if 'scoreboard' in result:
-            _scoreboard = result['scoreboard']
-            scoreboard = ScoreBoard(_scoreboard)
-        if 'data' in result:
-            for i in result['data'][0]['a']:
-                lm = LiveMessage(i['content'])
-                response.append(lm)
-    except Exception as e:
-        log.error(e)
-    return scoreboard, response
+def parse_message(message):
+    message_json = json.loads(message[11:])
+    log.debug(json.dumps(message_json, indent=2))
+    return SocketMessage(message_json['args'][0])
 
 
 def colored_text(text, *style):

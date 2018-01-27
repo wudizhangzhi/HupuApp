@@ -46,8 +46,12 @@ def to_text(value, encoding="utf-8"):
 
 class BaseEntry(object):
     def __init__(self, entry, default=None):
+        self._name = entry.split('.')[-1]
         self.entry = entry
         self.default = default
+
+    def __set__(self, instance, value):
+        instance.__dict__[self._name] = value
 
 
 class IntEntry(BaseEntry):

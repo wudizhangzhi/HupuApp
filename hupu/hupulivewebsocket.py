@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from __future__ import absolute_import, unicode_literals
 from __future__ import print_function
 
-import json
 import time
 
 import colored
@@ -11,7 +10,7 @@ import requests
 import websocket
 
 from api import logger
-from utils import parser_message, colored_text
+from utils import colored_text, parse_message
 
 log = logger.getLogger(__name__)
 
@@ -94,21 +93,21 @@ class HupuLiveWebSocket(object):
             msg = self.msg_send_to_get_match
         else:  # 数据部分
             # TODO
-            message_type, message_json = self.message_type(message)
-            if message_type == 'NBA_HOME':
-                msg = self.on_match_message(ws, message_type)
+            socket_message = parse_message(message)
+
+            if socket_message.room == 'NBA_HOME':
+                msg = self.on_match_message(ws, socket_message)
             else:
-                self.on_live_message(ws, message_json)
+                self.on_live_message(ws, socket_message)
                 self.heart_beat(ws)
+
+            if socket_message.room_live_type == -1:  # 比赛结束
+                print('----- 直播结束了, 即将退回菜单 -----', end='\n\r')
+                time.sleep(3)
+                ws.close()
 
         if msg:
             self.send(ws, msg)
-
-    # TODO 使用message 类
-    def message_type(self, message):
-        message_json = json.loads(message[11:])
-        log.debug(json.dumps(message_json, indent=2))
-        return message_json['args'][0]['room'], message_json
 
     def on_match_message(self, ws, message):
         """
@@ -120,7 +119,7 @@ class HupuLiveWebSocket(object):
         return '5::/nba_v1:{"args":[{"roomid":-1,"gid":%s,"pid":%s,"room":"NBA_PLAYBYPLAY_CASINO"}],"name":"join"}' % (
             self.game.gid, self.pid or 617)
 
-    def on_live_message(self, ws, message):
+    def on_live_message(self, ws, socket_message):
         """
         比赛直播信息
         :param ws: 
@@ -137,6 +136,7 @@ class HupuLiveWebSocket(object):
         log.debug('=== on close ===')
 
     def on_open(self, ws, *args, **kwargs):
+        print('直播室连接中...')
         log.debug('=== on open ===')
 
     def heart_beat(self, ws):
@@ -159,10 +159,8 @@ class HupuSocket(HupuLiveWebSocket):
     last_time = None  # 上次消息的时间
     last_pid = None  # 上次的pid
 
-    def on_live_message(self, ws, message_json):
-        if 'pid' in message_json['args'][0]:
-            self.pid = message_json['args'][0]['pid']
-        scoreboard, msgs = parser_message(message_json)
+    def on_live_message(self, ws, socket_message):
+        scoreboard, msgs = socket_message.scoreboard, socket_message.livemessges
         for msg in msgs:
             if not self.last_time or msg.t > self.last_time:
                 self.print_live(scoreboard, msg)
@@ -170,8 +168,6 @@ class HupuSocket(HupuLiveWebSocket):
         if hasattr(scoreboard, 'pid'):
             self.pid = scoreboard.pid
         return scoreboard, msgs
-        # if scoreboard.process == "已结束":
-        #     sys.exit()
 
     def print_live(self, scoreboard, msg):
         """

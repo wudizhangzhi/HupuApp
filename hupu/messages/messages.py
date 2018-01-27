@@ -1,13 +1,19 @@
 from .entries import StringEntry, IntEntry, ListEntry
 
+from api import logger
+
+log = logger.getLogger(__name__)
+
 
 class BaseMessage(object):
+    __type__ = 'base'
+
     def __init__(self, message):
         self.__dict__.update(message)
 
 
 class LiveMessage(BaseMessage):
-    '''
+    """
       {
         "rowId": 0,
         "content": {
@@ -18,13 +24,13 @@ class LiveMessage(BaseMessage):
           "t": 1516756188
         }
       }
-    '''
+    """
     __type__ = 'live'
-    event = StringEntry('event')
-    uid = StringEntry('uid')
-    end_time = StringEntry('end_time')
-    team = IntEntry('team')
-    t = IntEntry('t')
+    event = StringEntry('content.event')
+    uid = StringEntry('content.uid')
+    end_time = StringEntry('content.end_time')
+    team = IntEntry('content.team')
+    t = IntEntry('content.t')
 
     def __str__(self):
         return '{end_time}:  {event}'.format(end_time=self.end_time, event=self.event)
@@ -45,7 +51,7 @@ class CasinoMessage(BaseMessage):
 
 
 class ScoreBoard(BaseMessage):
-    '''
+    """
     "scoreboard": {
           "home_tid": "21",
           "home_score": "4",
@@ -54,7 +60,7 @@ class ScoreBoard(BaseMessage):
           "process": "第一节 9:35",
           "status": "2"
         },
-    '''
+    """
     __type__ = 'score'
     home_tid = IntEntry('home_tid')
     home_score = IntEntry('home_score')
@@ -98,21 +104,31 @@ class SocketMessage(BaseMessage):
     status = StringEntry('status')
     pid = StringEntry('pid')  # TODO 好像是交流的id
 
+    room_live_type = IntEntry('room_live_type')
+
     livemessges = []
+
+    games = []
 
     # casinomessages = ListEntry('casinomessages')
 
     def __init__(self, message):
-        result = message.pop('result')
-        # 计分板
-        scoreboard = result.pop('scoreboard')
-        self.scoreboard = ScoreBoard(scoreboard)
-        # 直播消息
-        data = result.pop('data', None)
-        if data:
-            _livemessge = data[0]['a']
-            for _lm in _livemessge:
-                self.livemessges.append(LiveMessage(_lm))
+        self.room = message.pop('room', None)
+        result = message.pop('result', {})
+        if self.room == 'NBA_HOME':
+            if isinstance(result, list):
+                for r in result:
+                    self.games.append(Game(r))
+        else:
+            # 计分板
+            scoreboard = result.pop('scoreboard', {})
+            self.scoreboard = ScoreBoard(scoreboard)
+            # 直播消息
+            data = result.pop('data', {})
+            if data:
+                _livemessge = data[0]['a']
+                for _lm in _livemessge:
+                    self.livemessges.append(LiveMessage(_lm))
 
         # TODO 竞猜消息
 
