@@ -34,6 +34,7 @@ from six import text_type
 from hupu.api import logger
 from hupu.utils import purge_text, text_to_list
 from hupu.terminalsize import get_terminal_size
+from hupu.hupulivewebsocket import HupuSocket
 
 log = logger.getLogger(__name__)
 
@@ -231,7 +232,6 @@ class Screen(object):
         self.screen.refresh()
 
     def choose_game(self, index):
-        from hupulivewebsocket import HupuSocket
         game_selected = self._screen_lines[index]
         hs = HupuSocket(game=game_selected, client=self.client_id)
         # try:
