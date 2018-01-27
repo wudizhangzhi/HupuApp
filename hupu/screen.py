@@ -227,6 +227,7 @@ class Screen(object):
                 self.screen.addstr(i + start_index, 0, line, curses.A_REVERSE)
             else:
                 self.screen.addstr(i + start_index, 0, line)
+
         self.screen.refresh()
 
     def choose_game(self, index):
@@ -247,7 +248,8 @@ class Screen(object):
         self.newsdetail = newsdetail  # 设置具体新闻
         # 正文
         content = purge_text(newsdetail.content)
-        self.set_screen(text_to_list(content, self._t_columns - 5))
+        # TODO 中文显示问题
+        self.set_screen(text_to_list(content, self._t_columns//3))
         self.set_mode('newsdetail')
 
     @property

@@ -103,4 +103,4 @@ def purge_text(text):
 
 
 def text_to_list(text, width):
-    return re.findall(r'.{%s}' % width, text)
+    return [i for i in re.findall(r'.{,%s}' % width, text) if i.strip()]
