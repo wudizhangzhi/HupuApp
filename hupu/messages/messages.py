@@ -1,6 +1,10 @@
-from .entries import StringEntry, IntEntry, ListEntry
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2018/1/27 下午2:22
+# @Author  : wudizhangzhi
+from messages.entries import StringEntry, IntEntry, ListEntry
 
-from api import logger
+from hupu.api import logger
 
 log = logger.getLogger(__name__)
 

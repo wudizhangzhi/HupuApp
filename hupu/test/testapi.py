@@ -10,7 +10,7 @@ sys.path.append('..')
 
 
 def test_news_detail():
-    from api.news import NewsMixin
+    from news import NewsMixin
     n = NewsMixin()
     print(n.getNewsDetailSchema(2255215))
 

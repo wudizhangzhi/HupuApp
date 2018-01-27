@@ -1,4 +1,7 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# @Time    : 2018/1/27 下午2:22
+# @Author  : wudizhangzhi
 from __future__ import absolute_import
 from __future__ import absolute_import, unicode_literals
 from __future__ import print_function
@@ -10,7 +13,7 @@ import requests
 import websocket
 
 from api import logger
-from utils import colored_text, parse_message
+from hupu.utils import colored_text, parse_message
 
 log = logger.getLogger(__name__)
 

@@ -5,8 +5,8 @@
 import json
 import time
 
-from api import logger
-from api.base import Base
+from . import logger
+from .base import Base
 from hashlib import md5
 
 log = logger.getLogger(__name__)

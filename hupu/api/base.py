@@ -12,8 +12,8 @@ except ImportError:
     pass
 from user_agent import generate_user_agent
 
-from utils import getSortParam, get_android_id, get_random_Imei
-from api import logger
+from hupu.utils import getSortParam, get_android_id, get_random_Imei
+from . import logger
 
 log = logger.getLogger(__name__)
 

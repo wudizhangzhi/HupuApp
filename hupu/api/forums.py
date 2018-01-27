@@ -5,9 +5,8 @@
 import datetime
 import time
 
-from api import logger
-from api.base import Base
-from messages.messages import Game
+from . import logger
+from .base import Base
 
 log = logger.getLogger(__name__)
 

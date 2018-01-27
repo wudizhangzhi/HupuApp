@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2018/1/27 下午2:22
+# @Author  : wudizhangzhi
 """Hupu.
     Proudly presented by Hupu JRs.
 
@@ -38,7 +42,7 @@ log = logger.getLogger(__name__)
 MODE_LIST = ['live', 'news']
 
 
-class Hupu(LiveMinxin, NewsMixin, LoginMixin):
+class HupuApp(LiveMinxin, NewsMixin, LoginMixin):
     def run(self):
         # 判断参数, 执行哪一种场景
         # 1.没参数
@@ -66,11 +70,9 @@ class Hupu(LiveMinxin, NewsMixin, LoginMixin):
 
 def main():
     arguments = docopt.docopt(__doc__, version='Hupu 1.0')
-    hupulive = Hupu(**arguments)
+    hupulive = HupuApp(**arguments)
     hupulive.run()
 
 
 if __name__ == '__main__':
-    # hupu = HupuLive()
-    # print(hupu.getNews().json())
     main()

@@ -1,4 +1,7 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# @Time    : 2018/1/27 下午2:22
+# @Author  : wudizhangzhi
 """
 虎扑文字直播显示
 
@@ -30,6 +33,7 @@ from six import text_type
 
 from api import logger
 from utils import purge_text, text_to_list
+from terminalsize import get_terminal_size
 
 log = logger.getLogger(__name__)
 
@@ -44,7 +48,8 @@ shortcut = [
 class Screen(object):
     def __init__(self, hupuapp, seq=(), **kwargs):
         self.hupuapp = hupuapp
-        self._t_columns, self._t_lines = os.get_terminal_size()
+        # self._t_columns, self._t_lines = os.get_terminal_size()
+        self._t_columns, self._t_lines = get_terminal_size()
 
         self.title = '虎扑 Proudly presented by JRs.'
         self.mode_title = '今日比赛:'  # 模式

@@ -1,4 +1,7 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# @Time    : 2018/1/27 下午2:22
+# @Author  : wudizhangzhi
 
 import json
 import os
@@ -17,7 +20,7 @@ except ImportError:
 from colored import stylize
 
 from api import logger
-from messages.messages import LiveMessage, ScoreBoard, SocketMessage
+from messages.messages import SocketMessage
 
 log = logger.getLogger(__name__)
 
