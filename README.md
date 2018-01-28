@@ -49,7 +49,9 @@ Options:
 ```
 
 ## 虎扑直播
+![hupu_live](images/hupu_live.gif)
 
+![hupu_live2](images/hupu_live2.gif)
 
 ## 虎扑新闻
 
@@ -68,5 +70,5 @@ Options:
 * [x] 心跳延续的问题
 * [x] curses 熟悉
 * [ ] 新闻的显示问题
-* [ ] python2, python3的兼容问题
-* [ ] wesocket-client loging有问题.
+* [ ] python2, python3的兼容问题(主要为python2 curse print)
+* [*] wesocket-client loging有问题.

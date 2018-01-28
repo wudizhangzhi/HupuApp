@@ -15,8 +15,8 @@ from hupu.utils import colored_text, parse_message
 from hupu.messages.entries import to_text
 
 log = logger.getLogger(__name__)
+log = logger.getLogger('websocket')
 import websocket
-
 
 
 class HupuLiveWebSocket(object):
@@ -229,8 +229,6 @@ def test():
 
     hlws.get_token = get_token
     hlws.run()
-
-
 
 
 if __name__ == '__main__':
