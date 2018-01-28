@@ -8,7 +8,7 @@ from __future__ import print_function
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 __author__ = 'wudizhangzhi'
 __all__ = ['HupuApp', 'main']
 

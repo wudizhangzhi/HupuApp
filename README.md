@@ -1,7 +1,9 @@
-# 虎扑篮球直播命令行版  
+# 虎扑篮球命令行版  
 ![Duncan](images/Duncan.jpg)
 
 灵感来自另一位[JR](https://github.com/chenjiandongx/HupuLive), 本来想fork他的工程继续改的,但是发现自己都没用到他的代码。所以就自己新建一个项目了.
+
+目前只支持python3.x， python2.x的适配还在加油中...
 
 ### 测试环境
 * macos 10.12.6
@@ -10,11 +12,13 @@
 ## requirements
 
 ```
-# lxml==3.7.3
-requests==2.18.4
-six==1.11.0
 docopt==0.6.2
-user_agent==0.1.9
+requests==2.18.4
+six>=1.10.0
+colored==1.3.5
+user-agent==0.1.9
+websocket-client==0.46.0
+future==0.16.0
 ```
 
 ## 安装
