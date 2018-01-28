@@ -9,6 +9,7 @@ from logging.handlers import RotatingFileHandler
 
 locale.setlocale(locale.LC_ALL, '')
 import time
+
 sys.path.append('..')
 
 
@@ -22,7 +23,6 @@ from hupu.hupuapp import HupuApp
 
 
 def test_unicode():
-
     hupu = HupuApp()
     games = hupu.getGames()
     print(games)
@@ -34,6 +34,7 @@ def test_unicode():
     win.refresh()
     time.sleep(1)
     curses.endwin()
+
 
 def test_logger():
     import logging
@@ -53,7 +54,14 @@ def test_logger():
 
     _logging.error('hello')
 
+
+def test_scoket_print():
+    from hupu.hupulivewebsocket import test
+    test()
+
+
 if __name__ == '__main__':
     # test_news_detail()
     # test_unicode()
-    test_logger()
+    # test_logger()
+    test_scoket_print()

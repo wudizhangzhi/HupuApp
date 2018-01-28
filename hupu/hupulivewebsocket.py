@@ -15,7 +15,6 @@ from hupu.utils import colored_text, parse_message
 from hupu.messages.entries import to_text
 
 log = logger.getLogger(__name__)
-logger.getLogger('websocket')
 import websocket
 
 
@@ -181,7 +180,7 @@ class HupuSocket(HupuLiveWebSocket):
         """
         打印直播信息
         """
-        print(' | '.join((self.colored_scoreboard(scoreboard), str(msg))), end='\n\r')
+        print("{} \n\r".format(' | '.join((self.colored_scoreboard(scoreboard), to_text(str(msg))))))
 
     def colored_scoreboard(self, scoreboard):
         home_score = scoreboard.home_score
@@ -214,7 +213,14 @@ def test_color():
 
 
 def test():
-    from messages.messages import Game
+    from hupu.messages.messages import Game
+    import sys
+    import curses
+    # _screen = curses.initscr()
+    # curses.echo()
+    # curses.reset_shell_mode()
+    # curses.endwin()
+    print(sys.stdout)
     game = Game({'gid': 153735, 'home_name': '勇士', 'away_name': '骑士'})
     hlws = HupuSocket(game=game, client='008796750504411', host='127.0.0.1', port=5000)
 
@@ -223,6 +229,8 @@ def test():
 
     hlws.get_token = get_token
     hlws.run()
+
+
 
 
 if __name__ == '__main__':

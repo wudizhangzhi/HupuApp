@@ -29,7 +29,7 @@ def read_log(filepath):
 
 
 def run_server():
-    reader = read_log('../hupulive/log.logtest')
+    reader = read_log('/Users/zhangzhichao/hupu.log')
 
     async def time(websocket, path):
         while True:

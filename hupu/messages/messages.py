@@ -82,7 +82,7 @@ class ScoreBoard(BaseMessage):
 class Game(BaseMessage):
     __type__ = 'game'
     home_name = StringEntry('home_name')
-    away_name = StringEntry('home_name')
+    away_name = StringEntry('away_name')
     home_score = IntEntry('home_score')
     away_score = IntEntry('away_score')
     process = StringEntry('process')
