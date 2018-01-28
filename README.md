@@ -57,6 +57,10 @@ Options:
 
 ![hupu_live2](images/hupu_live2.gif)
 
+## 球队数据排行
+
+![hupu_teamranks](images/hupu_teamranks.gif)
+
 ## 虎扑新闻
 
 ![hupu_news](images/hupu_news.gif)
