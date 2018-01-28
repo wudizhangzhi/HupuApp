@@ -15,6 +15,9 @@ class BaseMessage(object):
     def __init__(self, message):
         self.__dict__.update(message)
 
+    def __repr__(self):
+        return '({})'.format(self.__str__())
+
 
 class LiveMessage(BaseMessage):
     """
@@ -177,6 +180,57 @@ class NewsDetail(BaseMessage):
     title = StringEntry('title')
 
     content = StringEntry('offline_data.data.news.content')
+
+
+class TeamRank(BaseMessage):
+    """
+    排行
+    """
+    __type__ = 'teamrank'
+    rank_type = StringEntry('rank_type')
+    name = StringEntry('name')
+    title = StringEntry('title')
+    field = StringEntry('field')
+
+    data = ListEntry('data')
+
+    def __str__(self):
+        return '{title} {name}'.format(
+            title=self.title,
+            name=self.name
+        )
+
+    @property
+    def to_table(self):
+        """
+        排行  胜-负  胜率/胜场差  近况
+        """
+        table = []
+        if self.rank_type in ['east', 'west']:
+            for i, _data in enumerate(self.data):
+                table.append('{rank}.{name:<10}{win:>3}-{lost:<8}{gb:>10}{strik:>6}'.format(
+                    rank=i + 1,
+                    name=_data.get('name'),
+                    win=_data.get('win'),
+                    lost=_data.get('lost'),
+                    gb=_data.get('gb'),
+                    strik=_data.get('strk'),
+                ))
+        else:
+            for _data in self.data:
+                table.append('{rank}.{team_name:<20}{value}'.format(
+                    rank=_data.get('rank'),
+                    team_name=_data.get('team_name'),
+                    value=_data.get(self.field),
+                ))
+        return table
+
+    @property
+    def table_title(self):
+        if self.rank_type in ['east', 'west']:
+            return '排行         胜-负      胜率/胜场差     近况'
+        else:
+            return '{name:<20}数据'.format(name=self.name)
 
 
 def test_message():

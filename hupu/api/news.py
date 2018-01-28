@@ -3,7 +3,9 @@
 # @Time    : 2018/1/27 上午3:53
 # @Author  : wudizhangzhi
 
+import sys
 
+sys.path.append('../..')
 import time
 
 from hupu.api import logger
@@ -61,7 +63,25 @@ class NewsMixin(Base):
         log.debug(j)
         return NewsDetail(j['result'])
 
+    def _getRecap7(self, gid):
+        '''
+        获取赛后
+        :param gid: 
+        :return: html
+        '''
+        return self.sess.get(
+            url='https://games.mobileapi.hupu.com/1/{}/nba/getRecap7'.format(self.api_version),
+            params={
+                'client': self.client,
+                'gid': gid,
+                'nopic': 0,
+                'night': 0,
+                'entrance': '-1',
+            }
+        )
+
 
 if __name__ == '__main__':
     n = NewsMixin()
-    print(n.getNewsDetailSchema(2255215))
+    # print(n.getNewsDetailSchema(2255215))
+    print(n._getRecap7(153764).text)

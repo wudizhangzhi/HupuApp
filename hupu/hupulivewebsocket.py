@@ -216,20 +216,27 @@ def test():
     from hupu.messages.messages import Game
     import sys
     import curses
-    # _screen = curses.initscr()
+
+    _screen = curses.initscr()
     # curses.echo()
     # curses.reset_shell_mode()
-    # curses.endwin()
-    print(sys.stdout)
-    game = Game({'gid': 153735, 'home_name': '勇士', 'away_name': '骑士'})
-    hlws = HupuSocket(game=game, client='008796750504411', host='127.0.0.1', port=5000)
+    # print(sys.stdout)
+    # game = Game({'gid': 153735, 'home_name': '勇士', 'away_name': '骑士'})
+    # hlws = HupuSocket(game=game, client='008796750504411', host='127.0.0.1', port=5000)
+    #
+    # def get_token():
+    #     return ''
+    #
+    # hlws.get_token = get_token
+    # hlws.run()
+    i = 0
+    while i < 100:
+        print('this is a test.' * 10)
+        i += 1
+        time.sleep(0.1)
 
-    def get_token():
-        return ''
 
-    hlws.get_token = get_token
-    hlws.run()
-
+    curses.endwin()
 
 if __name__ == '__main__':
     # hlws = HupuLiveWebSocket(client='008796750504411', host='61.174.11.224', port=3081)

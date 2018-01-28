@@ -39,7 +39,6 @@ from hupu.terminalsize import get_terminal_size
 from hupu.hupulivewebsocket import HupuSocket
 from hupu.messages.entries import to_text
 
-
 shortcut = [
     ['j    ', 'Down      ', '下移'],
     ['k    ', 'Up        ', '上移'],
@@ -132,6 +131,10 @@ class Screen(object):
                 self.build_news_menu()
             elif self.mode == 'newsdetail':
                 self.build_news_detail()
+            elif self.mode == 'teamranks':
+                self.build_teamrank_menu()
+            elif self.mode == 'teamrank_detail':
+                self.build_teamrank_detail()
 
     def set_screen(self, lines):
         self._screen_lines = lines
@@ -148,6 +151,10 @@ class Screen(object):
             self.mode_title = '今日新闻:'
         elif mode == 'newsdetail':
             pass
+        elif mode == 'teamranks':
+            self.mode_title = '球队数据:'
+        elif mode == 'teamrank_detail':
+            self.mode_title = '球队数据 -- {}'.format(to_text(str(self.teamrank)))
 
         self.mode = mode
         self.display()
@@ -233,6 +240,45 @@ class Screen(object):
 
         self.screen.refresh()
 
+    def build_teamrank_menu(self):
+        self.screen.clear()
+        self._build_static_part()
+
+        start_index = len(self.helper) + 2
+        # 球队排行列表
+        # 获取可视范围
+        line_max = self._t_lines - start_index - 4
+        show_end = self._arrow_index + 1 if self._arrow_index >= line_max else line_max
+        show_start = show_end - line_max if show_end > line_max else 0
+
+        for i, line in enumerate(self._screen_lines[show_start:show_end]):
+            if i + show_start == self._arrow_index:
+                self.screen.addstr(i + start_index, 0, self._add_arrow(i + show_start, line), curses.A_REVERSE)
+            else:
+                self.screen.addstr(i + start_index, 0, self._add_arrow(i, line))
+        self.screen.refresh()
+
+    def build_teamrank_detail(self):
+        self.screen.clear()
+        self._build_static_part()
+
+        # 数据标题
+        self.screen.addstr(len(self.helper) + 2, 7, self.teamrank.table_title, curses.color_pair(1))
+        start_index = len(self.helper) + 3
+        # 球队排行列表
+        # 获取可视范围
+        line_max = self._t_lines - start_index - 4
+        show_end = self._arrow_index + 1 if self._arrow_index >= line_max else line_max
+        show_start = show_end - line_max if show_end > line_max else 0
+
+        for i, line in enumerate(self.teamrank.to_table[show_start:show_end]):
+            # line 的类型
+            if i + show_start == self._arrow_index:
+                self.screen.addstr(i + start_index, 0, self._add_arrow(i + show_start, line), curses.A_REVERSE)
+            else:
+                self.screen.addstr(i + start_index, 0, self._add_arrow(i, line))
+        self.screen.refresh()
+
     def choose_game(self, index):
         game_selected = self._screen_lines[index]
         hs = HupuSocket(game=game_selected, client=self.client_id)
@@ -251,8 +297,12 @@ class Screen(object):
         # 正文
         content = purge_text(to_text(newsdetail.content))
         # TODO 中文显示问题
-        self.set_screen(text_to_list(content, self._t_columns//3))
+        self.set_screen(text_to_list(content, self._t_columns // 3))
         self.set_mode('newsdetail')
+
+    def choose_teamranks(self, _arrow_index):
+        self.teamrank = self._screen_lines[_arrow_index]
+        self.set_mode('teamrank_detail')
 
     @property
     def endmsg(self):
@@ -279,6 +329,8 @@ class Screen(object):
                     news = self.hupuapp.getNews()
                     self.set_screen(news)
                     self.set_mode('news')
+                elif self.mode == 'teamrank_detail':
+                    self.set_mode('teamranks')
                 else:
                     self.quit()
                     break
@@ -290,3 +342,6 @@ class Screen(object):
 
                 elif self.mode == 'news':
                     self.choose_news(self._arrow_index)
+
+                elif self.mode == 'teamranks':
+                    self.choose_teamranks(self._arrow_index)
