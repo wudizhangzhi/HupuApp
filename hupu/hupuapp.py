@@ -25,6 +25,7 @@ import docopt
 import requests
 import curses
 import colored
+import traceback
 
 try:
     # 不打印ssl警告
@@ -52,11 +53,10 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
         # 2.有用户名密码 -- 登录
 
         # 默认进入比赛文字直播模式
+        mode = self._kwargs.get('MODE', '') or 'live'
+        mode = mode.lower()
+        assert mode in MODE_LIST, AttributeError('Expect mode is {}, got {}.'.format(', '.join(MODE_LIST), mode))
         try:
-            mode = self._kwargs.get('MODE', '') or 'live'
-            mode = mode.lower()
-            assert mode in MODE_LIST, AttributeError('Expect mode is {}, got {}.'.format(', '.join(MODE_LIST), mode))
-
             screen = Screen(self, client_id=self.client)  # 显示的屏幕
 
             if mode == 'live':  # 文字直播模式
@@ -74,10 +74,16 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
             # 设置模式， 开始监听
             screen.set_mode(mode)
             screen.listen()
+
         except curses.error as e:
             curses.endwin()
             log.error(e)
             print(colored_text('窗口太小, 请调整窗口大小!', colored.fg("red") + colored.attr("bold")))
+        except Exception as e:
+            log.error(traceback.format_exc())
+            if not curses.isendwin():
+                curses.endwin()
+
 
 
 def main():

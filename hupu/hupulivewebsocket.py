@@ -34,6 +34,8 @@ class HupuLiveWebSocket(object):
         self.HOST = host or '61.174.11.224'
         self.PORT = port or 3081
 
+        self._connected = False  # 是否连接过
+
         if not livetype:
             self.livetype = 'NBA'
         else:
@@ -82,9 +84,6 @@ class HupuLiveWebSocket(object):
     def on_message(self, ws, message):
         """
         收到消息时候的回调
-        :param ws: 
-        :param msg: 
-        :return: 
         """
         message = to_text(message)
         log.debug('receive: {}'.format(message))
@@ -92,15 +91,18 @@ class HupuLiveWebSocket(object):
         if message == '1::':
             msg = '2:::'
         elif message == '2::':
-            msg = '1::/nba_v1'
-        elif message in ['1::/nba_v1']:  # receive 各个比赛的gid, 比分, 情况
-            # msg = '5::/nba_v1:{"args":[{"room":"NBA_HOME"}],"name":"join"}'
-            msg = self.msg_send_to_get_match
+            if self._connected:
+                msg = '2::'
+            else:
+                self._connected = True
+                msg = '1::/nba_v1'
+        elif message in ['1::/nba_v1']:  # 开始获取数据
+            msg = self.on_match_message(ws, message)
         else:  # 数据部分
             socket_message = parse_message(message)
 
             if socket_message.room == 'NBA_HOME':
-                msg = self.on_match_message(ws, socket_message)
+                pass
             else:
                 self.on_live_message(ws, socket_message)
                 self.heart_beat(ws)
@@ -117,7 +119,6 @@ class HupuLiveWebSocket(object):
         """
         返回比赛信息(比赛的gid, 比分, 情况)之后的回调
         例如 发送 '5::/nba_v1:{"args":[{"roomid":-1,"gid":100721,"pid":429,"room":"NBA_PLAYBYPLAY_CASINO"}],"name":"join"}'
-        :return: 
         """
         # TODO 不太明白
         return '5::/nba_v1:{"args":[{"roomid":-1,"gid":%s,"pid":%s,"room":"NBA_PLAYBYPLAY_CASINO"}],"name":"join"}' % (
@@ -154,10 +155,10 @@ class HupuLiveWebSocket(object):
         if self.heart_beat_count > 5:
             self.heart_beat_count = 0
             # heart_beat_msg = '5::/nba_v1:{"args":[{"roomid":-1,"gid":%s,"qids":[],"pid":429,"room":"NBA_PLAYBYPLAY_CASINO"}],"name":"join"}' % self.gid
-            if self.heart_beat_count % 2 == 0:
-                heart_beat_msg = '2:::'
-            else:
-                heart_beat_msg = '2::'
+            # if self.heart_beat_count % 2 == 0:
+            heart_beat_msg = '2:::'
+            # else:
+            #     heart_beat_msg = '2::'
             self.send(ws, heart_beat_msg)
             log.debug('--- heart beat ---')
 
@@ -235,8 +236,8 @@ def test():
         i += 1
         time.sleep(0.1)
 
-
     curses.endwin()
+
 
 if __name__ == '__main__':
     # hlws = HupuLiveWebSocket(client='008796750504411', host='61.174.11.224', port=3081)

@@ -16,7 +16,7 @@ def getLogger(name):
 
     # file output hanlder
     fh = RotatingFileHandler(LOG_PATH,
-                             maxBytes=5 * 1024 * 1024,
+                             maxBytes=5 * 1024 * 1024 * 10,
                              backupCount=1)
     fh.setLevel(logging.DEBUG)
 

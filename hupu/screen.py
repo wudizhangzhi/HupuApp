@@ -26,15 +26,13 @@
 ----------------------------------
 """
 import curses
-import os
 import time
-
 from six import text_type
 
 from hupu.api import logger
 
 log = logger.getLogger(__name__)
-from hupu.utils import purge_text, text_to_list
+from hupu.utils import purge_text, text_to_list, colored_text
 from hupu.terminalsize import get_terminal_size
 from hupu.hupulivewebsocket import HupuSocket
 from hupu.messages.entries import to_text
