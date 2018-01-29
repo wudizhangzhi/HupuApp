@@ -206,6 +206,7 @@ class TeamRank(BaseMessage):
         排行  胜-负  胜率/胜场差  近况
         """
         table = []
+        table.append(self.table_title)
         if self.rank_type in ['east', 'west']:
             for i, _data in enumerate(self.data):
                 table.append('{rank}.{name:<10}{win:>3}-{lost:<8}{gb:>10}{strik:>6}'.format(

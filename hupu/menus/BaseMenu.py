@@ -8,7 +8,14 @@
 # from curtsies import FullscreenWindow, Input, FSArray
 # from curtsies.fmtfuncs import red, bold, green, on_blue, yellow
 # import curtsies.events
+import time
+from six import integer_types
 import curses
+from collections import defaultdict
+
+from hupu.api import logger
+
+log = logger.getLogger(__name__)
 
 """
 虎扑文字直播显示
@@ -33,22 +40,40 @@ body_title:
      item
 ----------------------------------
 """
+key_bind_events = defaultdict(dict)
+
+MAIN_PAGE = 0
+SUB_PAGE = 1
+
+
+def bind_event(key, mode=None):
+    if not mode:
+        mode = 'default'
+    if not isinstance(key, integer_types):
+        key = ord(key)
+
+    def decorator(func):
+        key_bind_events[key][mode] = func
+        return func
+
+    return decorator
 
 
 class BaseMenu(object):
-    MAIN_PAGE = 0
-    SUB_PAGE = 1
+    key_bind_events = defaultdict(dict)
 
     def __init__(self, title=None, body_title=None, addition_title=None):
         self.title = title
         self.addition_title = addition_title
         self.body_title = body_title
+        self.body_title_buffer = body_title  # 缓存主体标题
 
         self.screen = None
         self.addition_items = list()
         self.items = list()
-        self.sub_items = list()  # 下级item
-        self.page_type = BaseMenu.MAIN_PAGE  # 页面类型
+        self.items_buffer = list()  # 缓存item
+        self.mode = 'live'
+        self.page_type = MAIN_PAGE  # 页面类型
 
         self.should_exit = False
         self.highlight = None
@@ -74,27 +99,44 @@ class BaseMenu(object):
         curses.init_pair(2, curses.COLOR_CYAN, -1)
         curses.init_pair(3, curses.COLOR_RED, -1)
         curses.init_pair(4, curses.COLOR_YELLOW, -1)
-        # curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_RED)
+        curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLUE)
         self.highlight = curses.A_REVERSE
         self.normal = curses.A_NORMAL
 
+    def reset_current_option(self):
+        self.current_option = 0
+
     def quit(self):
+        y, x = self.screen.getmaxyx()
+        row = (y - 1) // 2
+        col = (x - len(self.endmsg)) // 2
+        self.screen.clear()
+        self.screen.addstr(row, col, self.endmsg, curses.color_pair(3))
+        self.screen.refresh()
+        time.sleep(2)
+
         curses.echo()
         curses.endwin()
         self.should_exit = True
 
+    @property
+    def endmsg(self):
+        return '（づ￣3￣）づ╭❤～ bye~bye~'
+
     def draw(self):
         """
-        Redraws the menu and refreshes the screen. Should be called whenever something changes that needs to be redrawn.
+        draw screen
         """
-
+        self.clear_screen()
         rows = 0  # 行数
         if self.title is not None:
-            self.screen.addstr(rows, 2, self.title, curses.A_STANDOUT)
+            # self.screen.addstr(rows, 2, self.title, curses.A_STANDOUT)
+            self.screen.addstr(rows, 2, self.title, curses.color_pair(5))
             rows += 2
 
-        if self.addition_title and self.page_type == BaseMenu.MAIN_PAGE:
-            self.screen.addstr(rows, 2, self.addition_title)
+        if self.addition_title and self.page_type == MAIN_PAGE:
+            self.screen.addstr(rows, 2, self.addition_title, curses.color_pair(6))
             rows += 1
             addition_start_row = rows
             for index, item in enumerate(self.addition_items):
@@ -135,8 +177,28 @@ class BaseMenu(object):
             self.current_option = 0
         self.draw()
 
+    def clear_screen(self):
+        """
+        清除屏幕
+        """
+        self.screen.clear()
+
     def register(self, key, mode, func):
-        self.key_bind_events[mode][key] = func
+        key_bind_events[key][mode] = func
+
+    def backto_mainpage(self):
+        self.reset_current_option()
+        self.page_type = MAIN_PAGE
+        self.body_title, self.body_title_buffer = self.body_title_buffer, self.body_title
+        self.items, self.items_buffer = self.items_buffer, self.items
+        self.draw()
+
+    def jumpto_subpage(self, title, subitems):
+        self.reset_current_option()
+        self.page_type = SUB_PAGE
+        self.body_title, self.body_title_buffer = title, self.body_title
+        self.items, self.items_buffer = subitems, self.items
+        self.draw()
 
     def listen(self):
         while not self.should_exit:
@@ -146,16 +208,18 @@ class BaseMenu(object):
             elif x in [ord('k'), curses.KEY_UP]:
                 self.move_up()
             elif x == ord('q'):
-                if self.page_type == BaseMenu.MAIN_PAGE:
+                if self.page_type == MAIN_PAGE:
                     self.quit()
                 else:
-                    self.page_type = BaseMenu.MAIN_PAGE
-                    self.current_option = 0
-                    self.draw()
-            elif x == ' ':
-                pass
-                # func = self.key_bind_events[self.mode][x]
-                # func()
+                    self.backto_mainpage()
+            elif x == ord(' '):
+                func = key_bind_events[x].get(self.mode)
+                if not func:
+                    func = key_bind_events[x].get('default')
+                if func:
+                    log.debug('func {}'.format(key_bind_events))
+                    self.clear_screen()
+                    func(self)
 
 
 if __name__ == '__main__':
@@ -169,4 +233,6 @@ if __name__ == '__main__':
         'q         Quit           退出',
     ]
     base.draw()
+
+    base.register(ord(' '), 'default', lambda x: print(x.title))
     base.listen()

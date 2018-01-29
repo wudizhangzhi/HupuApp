@@ -19,8 +19,8 @@ from hupu.api.login import LoginMixin
 from hupu.api.news import NewsMixin
 from hupu.api.datas import DatasMixin
 from hupu.utils import colored_text
-from hupu.screen import Screen
 from hupu.api import logger
+from hupu.menus.HupuMenu import HupuMenu
 
 log = logger.getLogger(__name__)
 
@@ -38,23 +38,21 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
         mode = mode.lower()
         assert mode in MODE_LIST, AttributeError('Expect mode is {}, got {}.'.format(', '.join(MODE_LIST), mode))
         try:
-            screen = Screen(self, client_id=self.client)  # 显示的屏幕
-
+            hupumenu = HupuMenu(self)
             if mode == 'live':  # 文字直播模式
-                games = self.getGames()
-                screen.set_screen(games)
+                items = self.getGames()
 
             elif mode == 'news':  # 新闻模式
-                news = self.getNews()
-                screen.set_screen(news)
+                items = self.getNews()
 
             elif mode == 'teamranks':  # 球队数据模式
-                teamranks = self.getDatas()
-                screen.set_screen(teamranks)
+                items = self.getDatas()
 
-            # 设置模式， 开始监听
-            screen.set_mode(mode)
-            screen.listen()
+            hupumenu.set_items(items)
+            hupumenu.mode = mode
+
+            hupumenu.draw()
+            hupumenu.listen()
 
         except curses.error as e:
             curses.endwin()
