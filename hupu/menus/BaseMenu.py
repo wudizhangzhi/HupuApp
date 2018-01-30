@@ -43,14 +43,21 @@ MAIN_PAGE = 0
 SUB_PAGE = 1
 
 
-def bind_event(key, mode=None):
+def bind_event(key_list, mode=None):
+    """
+    绑定按键, 模块 和 回调
+    :param key_list:
+    :param mode:
+    :return:
+    """
     if not mode:
         mode = 'default'
-    if not isinstance(key, integer_types):
-        key = ord(key)
 
     def decorator(func):
-        key_bind_events[key][mode] = func
+        for key in key_list:
+            if not isinstance(key, integer_types):
+                key = ord(key)
+            key_bind_events[key][mode] = func
         return func
 
     return decorator
@@ -160,7 +167,7 @@ class BaseMenu(object):
                 self.screen.addstr(rows + index, 4, ' ' * len(arrow) + str(item), text_style)
         self.screen.refresh()
 
-    @bind_event('k', 'default')
+    @bind_event(['k', curses.KEY_UP], 'default')
     def move_up(self):
         if self.current_option > 0:
             self.current_option -= 1
@@ -168,13 +175,20 @@ class BaseMenu(object):
             self.current_option = len(self.items) - 1
         self.draw()
 
-    @bind_event('j', 'default')
+    @bind_event(['j', curses.KEY_DOWN], 'default')
     def move_down(self):
         if self.current_option < len(self.items) - 1:
             self.current_option += 1
         else:
             self.current_option = 0
         self.draw()
+
+    @bind_event(['q', curses.KEY_EXIT], 'default')
+    def back_or_quit(self):
+        if self.page_type == MAIN_PAGE:
+            self.quit()
+        else:
+            self.backto_mainpage()
 
     def clear_screen(self):
         """
@@ -202,19 +216,12 @@ class BaseMenu(object):
     def listen(self):
         while not self.should_exit:
             x = self.screen.getch()
-            if x == ord('q'):
-                if self.page_type == MAIN_PAGE:
-                    self.quit()
-                else:
-                    self.backto_mainpage()
-            else:
-                func = key_bind_events[x].get(self.mode)
-                if not func:
-                    func = key_bind_events[x].get('default')
-                if func:
-                    self.clear_screen()
-                    func(self)
-
+            func = key_bind_events[x].get(self.mode)
+            if not func:
+                func = key_bind_events[x].get('default')
+            if func:
+                self.clear_screen()
+                func(self)
 
 if __name__ == '__main__':
     base = BaseMenu('虎扑 Proudly presented by JRs.', '今日比赛:')

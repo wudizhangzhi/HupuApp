@@ -46,7 +46,7 @@ Options:
     -u --username    input username.
     -p --password    input password.
     -a --apiversion  api version.[default: 7.1.15]
-    -m --mode        run mode.[default: live, available: live news...]
+    -m --mode        run mode.[default: live, available: live, news, teamranks...]
     -h --help        Show this help message and exit.
     -v --version     Show version.
 """
@@ -81,6 +81,5 @@ Options:
 * [x] 心跳延续的问题
 * [x] curses 熟悉
 * [ ] 新闻的显示问题
-* [ ] python2, python3的兼容问题(主要为python2 curse print)
-* [*] wesocket-client loging有问题.
+* [ ] python2, python3的兼容问题(主要为python2 curse websocket print)
 * [ ] ip地址列表的获取

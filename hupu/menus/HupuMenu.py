@@ -3,6 +3,7 @@
 # @Time    : 2018/1/29 下午8:17
 # @Author  : wudizhangzhi
 import time
+import curses
 
 from hupu.menus.BaseMenu import BaseMenu, SUB_PAGE, bind_event
 from hupu.api import logger
@@ -17,6 +18,7 @@ HELPER_LINES = [
     'k         Up             上移',
     'space     Enter          进入',
     'q         Quit           退出',
+    'Ctrl-C           退出文字直播',
 ]
 
 
@@ -30,21 +32,27 @@ class HupuMenu(BaseMenu):
         self.addition_title = '帮助信息:'
         self.addition_items = HELPER_LINES
 
-    @bind_event(' ', 'teamranks')
+    @bind_event([' ', curses.KEY_ENTER], 'teamranks')
     def choose_teamranks(self):
-        teamrank = self.items[self.current_option]
-        self.jumpto_subpage(teamrank.title, teamrank.to_table)
+        if not self.page_type == SUB_PAGE:
+            teamrank = self.items[self.current_option]
+            self.jumpto_subpage(teamrank.title, teamrank.to_table)
+        else:
+            self.draw()
 
-    @bind_event(' ', 'news')
+    @bind_event([' ', curses.KEY_ENTER], 'news')
     def choose_news(self):
-        news = self.items[self.current_option]
-        newsdetail = self.hupuapp.getNewsDetailSchema(news.nid)
-        # 正文
-        content = purge_text(to_text(newsdetail.content))
-        # 中文显示问题
-        self.jumpto_subpage(newsdetail.title, text_to_list(content, self.screen.getmaxyx()[0]))
+        if not self.page_type == SUB_PAGE:
+            news = self.items[self.current_option]
+            newsdetail = self.hupuapp.getNewsDetailSchema(news.nid)
+            # 正文
+            content = purge_text(to_text(newsdetail.content))
+            # 中文显示问题
+            self.jumpto_subpage(newsdetail.title, text_to_list(content, self.screen.getmaxyx()[0]))
+        else:
+            self.draw()
 
-    @bind_event(' ', 'live')
+    @bind_event([' ', curses.KEY_ENTER], 'live')
     def choose_live(self):
         self.clear_screen()
         self.screen.refresh()
