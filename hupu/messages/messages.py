@@ -248,17 +248,25 @@ class PlayData(BaseMessage):
     def to_table(self):
         table = []
         for _data in self.data:
-            table.append('{rank}.{player_name}({team_name}){val:>20}'.format(
-                rank=_data.get('rank'),
-                player_name=_data.get('player_name'),
-                team_name=_data.get('team_name'),
-                val=_data.get('val'),
-            ))
+            if 'injury_detail_cn' in _data:
+                table.append('{team_name}-{player_name} {injury_part_cn} {injury_detail_cn}'.format(
+                    injury_part_cn=_data.get('injury_part_cn', ''),
+                    player_name=_data.get('player_name'),
+                    team_name=_data.get('team_name'),
+                    injury_detail_cn=_data.get('injury_detail_cn'),
+                ))
+            else:
+                table.append('{rank}.{player_name}({team_name}){val:>20}'.format(
+                    rank=_data.get('rank', ''),
+                    player_name=_data.get('player_name'),
+                    team_name=_data.get('team_name'),
+                    val=_data.get('val'),
+                ))
         return table
 
     @property
     def title(self):
-        return '球员数据排行--{}'.format(self.name)
+        return '球员数据--{}'.format(self.name)
 
 
 def test_message():
