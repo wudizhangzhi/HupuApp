@@ -39,6 +39,7 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
         assert mode in MODE_LIST, AttributeError('Expect mode is {}, got {}.'.format(', '.join(MODE_LIST), mode))
         try:
             hupumenu = HupuMenu(self)
+            items = []
             if mode == 'live':  # 文字直播模式
                 items = self.getGames()
 

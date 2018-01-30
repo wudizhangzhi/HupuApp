@@ -55,11 +55,14 @@ Options:
 ## 虎扑直播
 ![hupu_live](images/hupu_live.gif)
 
-![hupu_live2](images/hupu_live2.gif)
+![hupu_live_contrast](images/hupu_live_contrast.gif)
+
+
 
 ## 球队数据排行
 
 ![hupu_teamranks](images/hupu_teamranks.gif)
+
 
 ## 虎扑新闻
 
@@ -80,3 +83,4 @@ Options:
 * [ ] 新闻的显示问题
 * [ ] python2, python3的兼容问题(主要为python2 curse print)
 * [*] wesocket-client loging有问题.
+* [ ] ip地址列表的获取

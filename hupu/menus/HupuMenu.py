@@ -30,9 +30,6 @@ class HupuMenu(BaseMenu):
         self.addition_title = '帮助信息:'
         self.addition_items = HELPER_LINES
 
-    # def choose_game(self):
-    #     self.items[self.current_option]
-
     @bind_event(' ', 'teamranks')
     def choose_teamranks(self):
         teamrank = self.items[self.current_option]

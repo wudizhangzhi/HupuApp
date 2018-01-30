@@ -154,11 +154,7 @@ class HupuLiveWebSocket(object):
         self.heart_beat_count += 1
         if self.heart_beat_count > 5:
             self.heart_beat_count = 0
-            # heart_beat_msg = '5::/nba_v1:{"args":[{"roomid":-1,"gid":%s,"qids":[],"pid":429,"room":"NBA_PLAYBYPLAY_CASINO"}],"name":"join"}' % self.gid
-            # if self.heart_beat_count % 2 == 0:
             heart_beat_msg = '2:::'
-            # else:
-            #     heart_beat_msg = '2::'
             self.send(ws, heart_beat_msg)
             log.debug('--- heart beat ---')
 

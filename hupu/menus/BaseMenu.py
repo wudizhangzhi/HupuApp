@@ -4,12 +4,9 @@
 # @Author  : wudizhangzhi
 # @File    : LiveMenu.py
 
-# from cursesmenu import selection_menu
-# from curtsies import FullscreenWindow, Input, FSArray
-# from curtsies.fmtfuncs import red, bold, green, on_blue, yellow
-# import curtsies.events
-import time
+from __future__ import print_function
 from six import integer_types
+import time
 import curses
 from collections import defaultdict
 
@@ -163,6 +160,7 @@ class BaseMenu(object):
                 self.screen.addstr(rows + index, 4, ' ' * len(arrow) + str(item), text_style)
         self.screen.refresh()
 
+    @bind_event('k', 'default')
     def move_up(self):
         if self.current_option > 0:
             self.current_option -= 1
@@ -170,6 +168,7 @@ class BaseMenu(object):
             self.current_option = len(self.items) - 1
         self.draw()
 
+    @bind_event('j', 'default')
     def move_down(self):
         if self.current_option < len(self.items) - 1:
             self.current_option += 1
@@ -203,21 +202,16 @@ class BaseMenu(object):
     def listen(self):
         while not self.should_exit:
             x = self.screen.getch()
-            if x in [ord('j'), curses.KEY_DOWN]:
-                self.move_down()
-            elif x in [ord('k'), curses.KEY_UP]:
-                self.move_up()
-            elif x == ord('q'):
+            if x == ord('q'):
                 if self.page_type == MAIN_PAGE:
                     self.quit()
                 else:
                     self.backto_mainpage()
-            elif x == ord(' '):
+            else:
                 func = key_bind_events[x].get(self.mode)
                 if not func:
                     func = key_bind_events[x].get('default')
                 if func:
-                    log.debug('func {}'.format(key_bind_events))
                     self.clear_screen()
                     func(self)
 
