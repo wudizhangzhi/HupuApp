@@ -32,15 +32,18 @@ class HupuMenu(BaseMenu):
         self.addition_title = '帮助信息:'
         self.addition_items = HELPER_LINES
 
-    @bind_event([' ', curses.KEY_ENTER], 'teamranks')
-    def choose_teamranks(self):
+    @bind_event([' ', curses.KEY_ENTER], ['teamranks', 'playerdata'])
+    def choose_datadetail(self):
+        """
+        跳转到具体数据
+        """
         if not self.page_type == SUB_PAGE:
             teamrank = self.items[self.current_option]
             self.jumpto_subpage(teamrank.title, teamrank.to_table)
         else:
             self.draw()
 
-    @bind_event([' ', curses.KEY_ENTER], 'news')
+    @bind_event([' ', curses.KEY_ENTER], ['news'])
     def choose_news(self):
         if not self.page_type == SUB_PAGE:
             news = self.items[self.current_option]
@@ -52,7 +55,7 @@ class HupuMenu(BaseMenu):
         else:
             self.draw()
 
-    @bind_event([' ', curses.KEY_ENTER], 'live')
+    @bind_event([' ', curses.KEY_ENTER], ['live'])
     def choose_live(self):
         self.clear_screen()
         self.screen.refresh()

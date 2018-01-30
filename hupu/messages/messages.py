@@ -234,6 +234,33 @@ class TeamRank(BaseMessage):
             return '{name:<20}数据'.format(name=self.name)
 
 
+class PlayData(BaseMessage):
+    __type__ = 'playerdata'
+
+    name = StringEntry('name')
+
+    data = ListEntry('data')
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+    @property
+    def to_table(self):
+        table = []
+        for _data in self.data:
+            table.append('{rank}.{player_name}({team_name}){val:>20}'.format(
+                rank=_data.get('rank'),
+                player_name=_data.get('player_name'),
+                team_name=_data.get('team_name'),
+                val=_data.get('val'),
+            ))
+        return table
+
+    @property
+    def title(self):
+        return '球员数据排行--{}'.format(self.name)
+
+
 def test_message():
     sb = ScoreBoard({'home_tid': 123})
     print(sb.home_tid)

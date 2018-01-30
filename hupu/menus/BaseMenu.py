@@ -43,21 +43,22 @@ MAIN_PAGE = 0
 SUB_PAGE = 1
 
 
-def bind_event(key_list, mode=None):
+def bind_event(key_list, mode_list=None):
     """
     绑定按键, 模块 和 回调
     :param key_list:
     :param mode:
     :return:
     """
-    if not mode:
-        mode = 'default'
+    if not mode_list:
+        mode_list = ['default']
 
     def decorator(func):
         for key in key_list:
-            if not isinstance(key, integer_types):
-                key = ord(key)
-            key_bind_events[key][mode] = func
+            for mode in mode_list:
+                if not isinstance(key, integer_types):
+                    key = ord(key)
+                key_bind_events[key][mode] = func
         return func
 
     return decorator
@@ -167,7 +168,7 @@ class BaseMenu(object):
                 self.screen.addstr(rows + index, 4, ' ' * len(arrow) + str(item), text_style)
         self.screen.refresh()
 
-    @bind_event(['k', curses.KEY_UP], 'default')
+    @bind_event(['k', curses.KEY_UP])
     def move_up(self):
         if self.current_option > 0:
             self.current_option -= 1
@@ -175,7 +176,7 @@ class BaseMenu(object):
             self.current_option = len(self.items) - 1
         self.draw()
 
-    @bind_event(['j', curses.KEY_DOWN], 'default')
+    @bind_event(['j', curses.KEY_DOWN])
     def move_down(self):
         if self.current_option < len(self.items) - 1:
             self.current_option += 1
@@ -183,7 +184,7 @@ class BaseMenu(object):
             self.current_option = 0
         self.draw()
 
-    @bind_event(['q', curses.KEY_EXIT], 'default')
+    @bind_event(['q', curses.KEY_EXIT])
     def back_or_quit(self):
         if self.page_type == MAIN_PAGE:
             self.quit()

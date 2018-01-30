@@ -8,6 +8,8 @@ import curses
 import colored
 import traceback
 
+import sys
+
 try:
     # 不打印ssl警告
     requests.packages.urllib3.disable_warnings()
@@ -24,7 +26,7 @@ from hupu.menus.HupuMenu import HupuMenu
 
 log = logger.getLogger(__name__)
 
-MODE_LIST = ['live', 'news', 'teamranks']
+MODE_LIST = ['live', 'news', 'teamranks', 'playerdata']
 
 
 class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
@@ -34,7 +36,7 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
         # 2.有用户名密码 -- 登录
 
         # 默认进入比赛文字直播模式
-        mode = self._kwargs.get('MODE', '') or 'live'
+        mode = self._kwargs.get('mode', '') or 'live'
         mode = mode.lower()
         assert mode in MODE_LIST, AttributeError('Expect mode is {}, got {}.'.format(', '.join(MODE_LIST), mode))
         try:
@@ -45,10 +47,22 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
 
             elif mode == 'news':  # 新闻模式
                 items = self.getNews()
+                hupumenu.body_title = '新闻:'
 
             elif mode == 'teamranks':  # 球队数据模式
                 items = self.getDatas()
+                hupumenu.body_title = '球队数据:'
 
+            elif mode == 'playerdata':  # 球队数据模式
+                datatype = self._kwargs.get('datatype')
+                if not datatype or datatype not in ['regular', 'injury', 'daily']:
+                    datatype = 'regular'
+                datatype = datatype.lower()
+                items = self.getPlayerDataInGenernal(datatype)
+                hupumenu.body_title = '球员数据:'
+
+            if not items:
+                raise Exception('没有数据!')
             hupumenu.set_items(items)
             hupumenu.mode = mode
 
@@ -63,3 +77,4 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
             log.error(traceback.format_exc())
             if not curses.isendwin():
                 curses.endwin()
+            print(e)
