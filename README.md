@@ -35,7 +35,7 @@ pip install HupuApp
     Proudly presented by Hupu JRs.
 
 Usage:
-    hupu [-m MODE] [-u USERNAME] [-p PASSWORD] [-a APIVERSION]
+    hupu [-m MODE] [-a APIVERSION] [-d DATATYPE] [-u USERNAME] [-p PASSWORD]
     hupu -h | --help
     hupu -v | --version
 
@@ -43,12 +43,13 @@ Tips:
     Please hit Ctrl-C on the keyborad when you want to interrupt the game live.
 
 Options:
-    -u --username    input username.
-    -p --password    input password.
-    -a --apiversion  api version.[default: 7.1.15]
-    -m --mode        run mode.[default: live, available: live, news, teamranks...]
-    -h --help        Show this help message and exit.
-    -v --version     Show version.
+    -u USERNAME --username=USERNAME         Input username.
+    -p PASSWORD --password=PASSWORD         Input password.
+    -a APIVERSION --apiversion=APIVERSION   Api version.[default: 7.1.15]
+    -m MODE --mode=MODE                     Run mode.Available: live news teamranks...[default: live]
+    -d DATATYPE --datatype=DATATYPE         Player data type.Available: regular, injury, daily[default:regular]
+    -h --help                               Show this help message and exit.
+    -v --version                            Show version.
 """
 ```
 
@@ -63,6 +64,13 @@ Options:
 
 ![hupu_teamranks](images/hupu_teamranks.gif)
 
+
+## 球员数据
+
+![hupu_playerdata](images/hupu_playerdata.gif)
+
+
+![hupu_playerdata_injury](images/hupu_playerdata_injury.gif)
 
 ## 虎扑新闻
 

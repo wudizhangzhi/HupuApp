@@ -14,11 +14,11 @@ Tips:
     Please hit Ctrl-C on the keyborad when you want to interrupt the game live.
 
 Options:
-    -u USERNAME --username=USERNAME         input username.
-    -p PASSWORD --password=PASSWORD         input password.
-    -a APIVERSION --apiversion=APIVERSION   api version.[default: 7.1.15]
-    -m MODE --mode=MODE                     run mode.Available: live news teamranks...[default: live]
-    -d DATATYPE --datatype=DATATYPE         run mode.
+    -u USERNAME --username=USERNAME         Input username.
+    -p PASSWORD --password=PASSWORD         Input password.
+    -a APIVERSION --apiversion=APIVERSION   Api version.[default: 7.1.15]
+    -m MODE --mode=MODE                     Run mode.Available: live news teamranks...[default: live]
+    -d DATATYPE --datatype=DATATYPE         Player data type.Available: regular, injury, daily[default:regular]
     -h --help                               Show this help message and exit.
     -v --version                            Show version.
 """
