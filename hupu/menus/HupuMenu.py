@@ -57,7 +57,8 @@ class HupuMenu(BaseMenu):
         self.clear_screen()
         self.screen.refresh()
         game_selected = self.items[self.current_option]
-        hs = HupuSocket(game=game_selected, client=self.hupuapp.client)
+        host, port = self.hupuapp.getIpAdress()
+        hs = HupuSocket(game=game_selected, client=self.hupuapp.client, host=host, port=port)
         # try:
         hs.run()
         # except KeyboardInterrupt:

@@ -60,8 +60,14 @@ def test_scoket_print():
     test()
 
 
+def test_init():
+    hupuapp = HupuApp()
+    print(hupuapp.getInit().json())
+
+
 if __name__ == '__main__':
     # test_news_detail()
     # test_unicode()
     # test_logger()
-    test_scoket_print()
+    # test_scoket_print()
+    test_init()

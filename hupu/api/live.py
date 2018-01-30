@@ -3,7 +3,9 @@
 # @Time    : 2018/1/27 上午3:58
 # @Author  : wudizhangzhi
 import datetime
+import json
 import time
+from random import choice
 
 from hupu.api import logger
 from hupu.api.base import Base
@@ -82,3 +84,33 @@ class LiveMinxin(Base):
                 'entrance': '-1',
             },
         )
+
+    def getInit(self):
+        return self.sess.get(
+            url='https://games.mobileapi.hupu.com/1/{}/status/init'.format(self.api_version),
+            params={
+                'dv': '5.7.79',
+                'crt': int(time.time() * 1000),
+                'tag': 'nba',  # 默认nba
+                'night': 0,
+                'channel': 'myapp',
+                'client': self.client,
+                'time_zone': 'Asia/Shanghai',
+                'android_id': self.android_id,
+            },
+        )
+
+    def getIpAdress(self):
+        host = port = None
+
+        try:
+            r_json = self.getInit().json()
+            log.debug('ip地址获取: {}'.format(json.dumps(r_json, indent=2)))
+            ip_adress_list = choice(r_json['result']['redirector'])
+            log.debug('ip地址使用: {}'.format(ip_adress_list))
+            tmp = ip_adress_list.split(':')
+            host = tmp[0]
+            port = int(tmp[1])
+        except:
+            pass
+        return host, port
