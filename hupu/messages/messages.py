@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
+# from __future__ import unicode_literals
 from six import python_2_unicode_compatible
-from hupu.messages.entries import StringEntry, IntEntry, ListEntry
+
+from hupu.messages.entries import StringEntry, IntEntry, ListEntry, to_text, PY3
 from hupu.api import logger
 
 log = logger.getLogger(__name__)
@@ -142,6 +144,7 @@ class SocketMessage(BaseMessage):
         super(SocketMessage, self).__init__(message)
 
 
+# @python_2_unicode_compatible
 class News(BaseMessage):
     """
     虎扑新闻
@@ -170,6 +173,7 @@ class News(BaseMessage):
         )
 
 
+# @python_2_unicode_compatible
 class NewsDetail(BaseMessage):
     """
     虎扑新闻正文
@@ -180,6 +184,9 @@ class NewsDetail(BaseMessage):
     title = StringEntry('title')
 
     content = StringEntry('offline_data.data.news.content')
+
+    def __str__(self):
+        return self.content
 
 
 class TeamRank(BaseMessage):
@@ -211,11 +218,11 @@ class TeamRank(BaseMessage):
             for i, _data in enumerate(self.data):
                 table.append('{rank}.{name:<10}{win:>3}-{lost:<8}{gb:>10}{strik:>6}'.format(
                     rank=i + 1,
-                    name=_data.get('name'),
-                    win=_data.get('win'),
-                    lost=_data.get('lost'),
-                    gb=_data.get('gb'),
-                    strik=_data.get('strk'),
+                    name=to_text(_data.get('name')),
+                    win=to_text(_data.get('win')),
+                    lost=to_text(_data.get('lost')),
+                    gb=to_text(_data.get('gb')),
+                    strik=to_text(_data.get('strk')),
                 ))
         else:
             for _data in self.data:

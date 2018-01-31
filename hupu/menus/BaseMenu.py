@@ -5,6 +5,7 @@
 # @File    : LiveMenu.py
 
 from __future__ import print_function
+
 from six import integer_types
 import time
 import curses

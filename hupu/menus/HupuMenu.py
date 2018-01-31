@@ -49,7 +49,7 @@ class HupuMenu(BaseMenu):
             news = self.items[self.current_option]
             newsdetail = self.hupuapp.getNewsDetailSchema(news.nid)
             # 正文
-            content = purge_text(to_text(newsdetail.content))
+            content = purge_text(newsdetail.content)
             # 中文显示问题
             self.jumpto_subpage(newsdetail.title, text_to_list(content, self.screen.getmaxyx()[0]))
         else:

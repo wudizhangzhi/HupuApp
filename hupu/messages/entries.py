@@ -9,6 +9,7 @@ import six
 import sys
 
 PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
 
 
 def get_value(instance, path, default=None):
@@ -47,8 +48,10 @@ def get_value_list(instance, path, default=None):
 
 def to_text(value, encoding="utf-8"):
     if isinstance(value, six.text_type):
-        if PY2:
-            value = value.encode(encoding)
+        # TODO 适配测试
+        if not PY3:
+            if isinstance(value, unicode):
+                value = value.encode(encoding)
         return value
     if isinstance(value, six.binary_type):
         return value.decode(encoding)
