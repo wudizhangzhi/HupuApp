@@ -216,7 +216,7 @@ class TeamRank(BaseMessage):
         table.append(self.table_title)
         if self.rank_type in ['east', 'west']:
             for i, _data in enumerate(self.data):
-                table.append('{rank}.{name:<10}{win:>3}-{lost:<8}{gb:>10}{strik:>6}'.format(
+                table.append('{rank}.{name:<10}{win:>3}-{lost:<8}{gb:>10}     {strik}'.format(
                     rank=i + 1,
                     name=to_text(_data.get('name')),
                     win=to_text(_data.get('win')),
