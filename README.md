@@ -3,7 +3,7 @@
 
 灵感来自另一位[JR](https://github.com/chenjiandongx/HupuLive), 本来想fork他的工程继续改的,但是发现自己都没用到他的代码。所以就自己新建一个项目了.
 
-目前只支持python3.x， python2.x的适配还在加油中...
+目前大部分功能支持python3.x， python2.x, 部分功能python2.x的适配还在加油中...
 
 ### 测试环境
 * macos 10.12.6
@@ -47,7 +47,7 @@ Options:
     -p PASSWORD --password=PASSWORD         Input password.
     -a APIVERSION --apiversion=APIVERSION   Api version.[default: 7.1.15]
     -m MODE --mode=MODE                     Run mode.Available: live news teamranks...[default: live]
-    -d DATATYPE --datatype=DATATYPE         Player data type.Available: regular, injury, daily[default:regular]
+    -d DATATYPE --datatype=DATATYPE         Player data type.Available: regular, injury, daily.[default:regular]
     -h --help                               Show this help message and exit.
     -v --version                            Show version.
 """
@@ -90,4 +90,4 @@ Options:
 * [x] curses 熟悉
 * [ ] 新闻的显示问题
 * [ ] python2, python3的兼容问题(主要为python2 curse websocket print)
-* [ ] ip地址列表的获取
+* [x] ip地址列表的获取

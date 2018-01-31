@@ -29,7 +29,7 @@ import locale
 
 locale.setlocale(locale.LC_ALL, '')
 
-__version__ = '1.0.6'
+__version__ = '1.0.7'
 __author__ = 'wudizhangzhi'
 __all__ = ['HupuApp', 'start']
 
