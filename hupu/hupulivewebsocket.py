@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import
 from __future__ import print_function
 
 import time
@@ -86,7 +86,7 @@ class HupuLiveWebSocket(object):
         收到消息时候的回调
         """
         message = to_text(message)
-        log.debug('receive: {}'.format(message))
+        log.debug('receive: {}'.format(to_text(message)))
         msg = ''  # 返回的消息
         if message == '1::':
             msg = '2:::'
@@ -100,7 +100,8 @@ class HupuLiveWebSocket(object):
             msg = self.on_match_message(ws, message)
         else:  # 数据部分
             socket_message = parse_message(message)
-
+            if not socket_message:
+                return
             if socket_message.room == 'NBA_HOME':
                 pass
             else:
@@ -177,7 +178,7 @@ class HupuSocket(HupuLiveWebSocket):
         """
         打印直播信息
         """
-        print("{} \n\r".format(' | '.join((self.colored_scoreboard(scoreboard), to_text(str(msg))))))
+        print("{} \n\r".format(' | '.join((self.colored_scoreboard(scoreboard), str(msg)))))
 
     def colored_scoreboard(self, scoreboard):
         home_score = scoreboard.home_score
@@ -192,9 +193,9 @@ class HupuSocket(HupuLiveWebSocket):
         text = '{home} {home_score}:{away_score} {away}  {process}'.format(
             home_score=home_score,
             away_score=away_score,
-            process=to_text(scoreboard.process),
-            home=to_text(self.game.home_name),
-            away=to_text(self.game.away_name),
+            process=scoreboard.process,
+            home=self.game.home_name,
+            away=self.game.away_name,
         )
         return text
 
@@ -211,28 +212,38 @@ def test_color():
 
 def test():
     from hupu.messages.messages import Game
-    import sys
+    # import sys
     import curses
+    #
+    def incurses(stdscr):
+        stdscr.addstr(0, 0, "Exiting in ")
+        stdscr.addstr(2, 0, "Hello World from Curses!")
+        for i in range(5, -1, -1):
+            stdscr.addstr(0, 11, str(i))
+            stdscr.refresh()
+            time.sleep(1)
+        curses.endwin()
 
-    _screen = curses.initscr()
-    # curses.echo()
-    # curses.reset_shell_mode()
-    # print(sys.stdout)
+    curses.wrapper(incurses)
+    print("After curses")
+    # # curses.echo()
+    # # curses.reset_shell_mode()
+    # # print(sys.stdout)
     # game = Game({'gid': 153735, 'home_name': '勇士', 'away_name': '骑士'})
     # hlws = HupuSocket(game=game, client='008796750504411', host='127.0.0.1', port=5000)
-    #
-    # def get_token():
-    #     return ''
-    #
-    # hlws.get_token = get_token
     # hlws.run()
+    # #
+    # # def get_token():
+    # #     return ''
+    # #
+    # # hlws.get_token = get_token
+    # # hlws.run()
     i = 0
     while i < 100:
-        print('this is a test.' * 10)
+        print('this is a test. {}'.format(i))
         i += 1
-        time.sleep(0.1)
-
-    curses.endwin()
+        time.sleep(1)
+    #
 
 
 if __name__ == '__main__':

@@ -5,9 +5,13 @@
 import time
 import curses
 
+import sys
+
+import os
+
 from hupu.menus.BaseMenu import BaseMenu, SUB_PAGE, bind_event
 from hupu.api import logger
-from hupu.messages.entries import to_text
+from hupu.messages.entries import to_text, PY3
 from hupu.utils import purge_text, text_to_list
 from hupu.hupulivewebsocket import HupuSocket
 
@@ -61,6 +65,9 @@ class HupuMenu(BaseMenu):
         self.screen.refresh()
         game_selected = self.items[self.current_option]
         host, port = self.hupuapp.getIpAdress()
+        # debug
+        if not PY3:  # python2 unicode comaptible
+            sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
         hs = HupuSocket(game=game_selected, client=self.hupuapp.client, host=host, port=port)
         # try:
         hs.run()

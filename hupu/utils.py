@@ -7,6 +7,7 @@ import json
 import os
 import random
 import re
+import traceback
 from hashlib import md5
 # TODO
 try:
@@ -88,9 +89,13 @@ def getSortParam(**kwargs):
 
 
 def parse_message(message):
-    message_json = json.loads(message[11:])
-    log.debug(json.dumps(message_json, indent=2))
-    return SocketMessage(message_json['args'][0])
+    try:
+        message_json = json.loads(message[11:])
+        log.debug(json.dumps(message_json, indent=2))
+        return SocketMessage(message_json['args'][0])
+    except Exception as e:
+        log.debug(traceback.format_exc())
+        return None
 
 
 def colored_text(text, *style):
