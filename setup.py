@@ -21,10 +21,9 @@ setup(
     description='Proudly presented by Hupu JRs',
     license="MIT",
     # py_modules=['hupu'],
-    keywords='leetcode crawler',
-    requires=["bs4", "docopt", "requests", "lxml"],
+    keywords='hupu',
     entry_points={
-        "console_scripts": ["HupuApp = hupu.hupuapp:main", ]
+        "console_scripts": ["HupuApp = hupu.hupuapp:start", ]
     },
     python_requires='>=2.6,',
     install_requires=install_requires,
