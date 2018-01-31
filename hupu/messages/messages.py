@@ -227,9 +227,9 @@ class TeamRank(BaseMessage):
         else:
             for _data in self.data:
                 table.append('{rank}.{team_name:<20}{value}'.format(
-                    rank=_data.get('rank'),
-                    team_name=_data.get('team_name'),
-                    value=_data.get(self.field),
+                    rank=to_text(_data.get('rank')),
+                    team_name=to_text(_data.get('team_name')),
+                    value=to_text(_data.get(self.field)),
                 ))
         return table
 
@@ -257,17 +257,17 @@ class PlayData(BaseMessage):
         for _data in self.data:
             if 'injury_detail_cn' in _data:
                 table.append('{team_name}-{player_name} {injury_part_cn} {injury_detail_cn}'.format(
-                    injury_part_cn=_data.get('injury_part_cn', ''),
-                    player_name=_data.get('player_name'),
-                    team_name=_data.get('team_name'),
-                    injury_detail_cn=_data.get('injury_detail_cn'),
+                    injury_part_cn=to_text(_data.get('injury_part_cn', '')),
+                    player_name=to_text(_data.get('player_name')),
+                    team_name=to_text(_data.get('team_name')),
+                    injury_detail_cn=to_text(_data.get('injury_detail_cn')),
                 ))
             else:
                 table.append('{rank}.{player_name}({team_name}){val:>20}'.format(
-                    rank=_data.get('rank', ''),
-                    player_name=_data.get('player_name'),
-                    team_name=_data.get('team_name'),
-                    val=_data.get('val'),
+                    rank=to_text(_data.get('rank', '')),
+                    player_name=to_text(_data.get('player_name')),
+                    team_name=to_text(_data.get('team_name')),
+                    val=to_text(_data.get('val')),
                 ))
         return table
 

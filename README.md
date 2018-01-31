@@ -12,6 +12,7 @@
 ## requirements
 
 ```
+curses
 docopt==0.6.2
 requests==2.18.4
 six>=1.10.0

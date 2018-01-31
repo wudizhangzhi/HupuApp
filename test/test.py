@@ -5,7 +5,7 @@ import sys
 
 sys.path.append('..')
 
-from hupu import start
+from hupu.hupuapp import start
 
 if __name__ == '__main__':
     # sizex, sizey = get_terminal_size()
