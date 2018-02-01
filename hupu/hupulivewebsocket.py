@@ -6,12 +6,13 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import time
+import traceback
 
 import colored
 import requests
 
 from hupu.api import logger
-from hupu.utils import colored_text, parse_message
+from hupu.utils import colored_text, parse_message, SYSTEM, PREFERREDENCODING
 from hupu.messages.entries import to_text
 
 log = logger.getLogger(__name__)
@@ -109,7 +110,7 @@ class HupuLiveWebSocket(object):
                 self.heart_beat(ws)
 
             if socket_message.room_live_type == -1:  # 比赛结束
-                print('----- 直播结束了, 即将退回菜单 -----', end='\n\r')
+                self.print('----- 直播结束了, 即将退回菜单 -----\n\r')
                 time.sleep(3)
                 ws.close()
 
@@ -139,13 +140,13 @@ class HupuLiveWebSocket(object):
         log.error('=== onerror: {} ==='.format(error))
 
     def on_close(self, ws):
-        print('\n\r')
-        print('|文字直播关闭|\n\r')
+        self.print('\n\r')
+        self.print('|文字直播关闭|\n\r')
         log.debug('=== on close ===')
 
     def on_open(self, ws, *args, **kwargs):
-        print('\n\r')
-        print('|直播室连接中...|\n\r')
+        self.print('\n\r')
+        self.print('|直播室连接中...|\n\r')
         log.debug('=== on open ===')
 
     def heart_beat(self, ws):
@@ -158,6 +159,14 @@ class HupuLiveWebSocket(object):
             heart_beat_msg = '2:::'
             self.send(ws, heart_beat_msg)
             log.debug('--- heart beat ---')
+
+    def print(self, line):
+        if SYSTEM == 'windows':
+            try:
+                line = line.decode('utf8').encode(PREFERREDENCODING)
+            except Exception as e:
+                log.error(traceback.format_exc())
+        print(line)
 
 
 class HupuSocket(HupuLiveWebSocket):
@@ -178,18 +187,20 @@ class HupuSocket(HupuLiveWebSocket):
         """
         打印直播信息
         """
-        print("{} \n\r".format(' | '.join((self.colored_scoreboard(scoreboard), str(msg)))))
+        live_content = "{} \n\r".format(' | '.join((self.colored_scoreboard(scoreboard), str(msg))))
+        self.print(live_content)
 
     def colored_scoreboard(self, scoreboard):
         home_score = scoreboard.home_score
         away_score = scoreboard.away_score
-        try:
-            if int(home_score) > int(away_score):
-                home_score = colored_text(home_score, colored.fg("red") + colored.attr("bold"))
-            else:
-                away_score = colored_text(away_score, colored.fg("red") + colored.attr("bold"))
-        except Exception as e:
-            pass
+        if SYSTEM != 'windows':
+            try:
+                if int(home_score) > int(away_score):
+                    home_score = colored_text(home_score, colored.fg("red") + colored.attr("bold"))
+                else:
+                    away_score = colored_text(away_score, colored.fg("red") + colored.attr("bold"))
+            except Exception as e:
+                pass
         text = '{home} {home_score}:{away_score} {away}  {process}'.format(
             home_score=home_score,
             away_score=away_score,

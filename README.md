@@ -5,6 +5,8 @@
 
 目前大部分功能支持python3.x， python2.x, 部分功能python2.x的适配还在加油中...
 
+window的适配也在努力中...
+
 ### 测试环境
 * macos 10.12.6
 * Python 3.6.1 
@@ -23,12 +25,18 @@ future==0.16.0
 ```
 
 ## 安装
-
 推荐使用 pip 进行安装
 ```
 pip install HupuApp
 ```
 安装完成后命令行直接运行`HupuApp`
+
+ ## Window安装
+ (感谢@[harmonicahappy](https://github.com/harmonicahappy))
+ ```
+ 原因及解决办法：
+ Windows不支持curses，所以得去https://www.lfd.uci.edu/~gohlke/pythonlibs/#curses 下载符合系统版本的whl，然后命令行使用 python -m pip install xxx.whl，安装了以后才能在Windows下运行HupuApp
+ ```
 
 ## 使用指南
 ```shell
@@ -79,16 +87,7 @@ Options:
 
 
 ## To-do list
-* [x] http接口get, post, 参数规则
-* [x] 获取比赛列表
-* [x] 获取直播文字历史记录
-* [x] 命令行界面的设计
 * [ ] 框架的设计, 绝对可以改进
 * [ ] websocket的研究
-* [x] 直播数据tcp的连接
-* [x] package 的 import 问题
-* [x] 心跳延续的问题
-* [x] curses 熟悉
 * [ ] 新闻的显示问题
 * [ ] python2, python3的兼容问题(主要为python2 curse websocket print)
-* [x] ip地址列表的获取

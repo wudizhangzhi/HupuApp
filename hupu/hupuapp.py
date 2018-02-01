@@ -27,26 +27,26 @@ from __future__ import print_function
 import locale
 
 locale.setlocale(locale.LC_ALL, '')
-import requests
+import sys
 import curses
 import colored
 import docopt
 import traceback
 
-try:
-    # 不打印ssl警告
-    requests.packages.urllib3.disable_warnings()
-except ImportError:
-    pass
-
 from hupu.api.live import LiveMinxin
 from hupu.api.login import LoginMixin
 from hupu.api.news import NewsMixin
 from hupu.api.datas import DatasMixin
-from hupu.utils import colored_text
+from hupu.utils import colored_text, SYSTEM
 from hupu.api import logger
 from hupu.menus.HupuMenu import HupuMenu
 from hupu.version import version
+
+# if SYSTEM.lower() == 'windows':
+#     # TODO debug window
+#     reload(sys)
+#     sys.setdefaultencoding('utf-8')
+#     sys.stdout.encoding = 'cp65001'
 
 log = logger.getLogger(__name__)
 
@@ -56,9 +56,6 @@ MODE_LIST = ['live', 'news', 'teamranks', 'playerdata']
 class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
     def run(self):
         # 判断参数, 执行哪一种场景
-        # 1.没参数
-        # 2.有用户名密码 -- 登录
-
         # 默认进入比赛文字直播模式
         mode = self._kwargs.get('mode', '') or 'live'
         mode = mode.lower()

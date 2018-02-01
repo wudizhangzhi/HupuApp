@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/29 下午8:17
 # @Author  : wudizhangzhi
+
+from six import PY3
 import time
 import curses
-
 import sys
-
 import os
 
 from hupu.menus.BaseMenu import BaseMenu, SUB_PAGE, bind_event
 from hupu.api import logger
-from hupu.messages.entries import to_text, PY3
 from hupu.utils import purge_text, text_to_list
 from hupu.hupulivewebsocket import HupuSocket
 

@@ -5,7 +5,7 @@
 # from __future__ import unicode_literals
 from six import python_2_unicode_compatible
 
-from hupu.messages.entries import StringEntry, IntEntry, ListEntry, to_text, PY3
+from hupu.messages.entries import StringEntry, IntEntry, ListEntry, to_text
 from hupu.api import logger
 
 log = logger.getLogger(__name__)

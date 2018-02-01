@@ -6,12 +6,15 @@
 
 from __future__ import print_function
 
+import traceback
+
 from six import integer_types
 import time
 import curses
 from collections import defaultdict
 
 from hupu.api import logger
+from hupu.utils import SYSTEM, PREFERREDENCODING
 
 log = logger.getLogger(__name__)
 
@@ -47,8 +50,8 @@ SUB_PAGE = 1
 def bind_event(key_list, mode_list=None):
     """
     绑定按键, 模块 和 回调
-    :param key_list:
-    :param mode:
+    :param key_list: 按键列表
+    :param mode_list: 模式列表
     :return:
     """
     if not mode_list:
@@ -118,7 +121,7 @@ class BaseMenu(object):
         row = (y - 1) // 2
         col = (x - len(self.endmsg)) // 2
         self.screen.clear()
-        self.screen.addstr(row, col, self.endmsg, curses.color_pair(3))
+        self.addstr(row, col, self.endmsg, curses.color_pair(3))
         self.screen.refresh()
         time.sleep(2)
 
@@ -128,7 +131,21 @@ class BaseMenu(object):
 
     @property
     def endmsg(self):
+        if SYSTEM == 'windows':
+            return 'bye~bye~'
         return '（づ￣3￣）づ╭❤～ bye~bye~'
+
+    def addstr(self, *args):
+        if len(args) == 1:
+            self.screen.addstr(args[0])
+        else:
+            content = args[2]
+            if SYSTEM == 'windows':
+                try:
+                    content = args[2].decode('utf8').encode(PREFERREDENCODING)
+                except Exception as e:
+                    log.debug(traceback.format_exc())
+            self.screen.addstr(args[0], args[1], content, *args[3:])
 
     def draw(self):
         """
@@ -137,21 +154,20 @@ class BaseMenu(object):
         self.clear_screen()
         rows = 0  # 行数
         if self.title is not None:
-            # self.screen.addstr(rows, 2, self.title, curses.A_STANDOUT)
-            self.screen.addstr(rows, 2, self.title, curses.color_pair(5))
+            self.addstr(rows, 2, self.title, curses.color_pair(5))
             rows += 2
 
         if self.addition_title and self.page_type == MAIN_PAGE:
-            self.screen.addstr(rows, 2, self.addition_title, curses.color_pair(6))
+            self.addstr(rows, 2, self.addition_title, curses.color_pair(6))
             rows += 1
             addition_start_row = rows
             for index, item in enumerate(self.addition_items):
-                self.screen.addstr(addition_start_row + index, 4, item)
+                self.addstr(addition_start_row + index, 4, item)
                 rows += 1
             rows += 1
 
         if self.body_title is not None:
-            self.screen.addstr(rows, 2, self.body_title, curses.A_BOLD)
+            self.addstr(rows, 2, self.body_title, curses.A_BOLD)
             rows += 2
 
         screen_rows, screen_cols = self.screen.getmaxyx()
@@ -163,10 +179,10 @@ class BaseMenu(object):
         for index, item in enumerate(self.items[show_start:show_end]):
             if self.current_option == index + show_start:
                 text_style = self.highlight
-                self.screen.addstr(rows + index, 4, arrow + str(item), text_style)
+                self.addstr(rows + index, 4, arrow + str(item), text_style)
             else:
                 text_style = self.normal
-                self.screen.addstr(rows + index, 4, ' ' * len(arrow) + str(item), text_style)
+                self.addstr(rows + index, 4, ' ' * len(arrow) + str(item), text_style)
         self.screen.refresh()
 
     @bind_event(['k', curses.KEY_UP])

@@ -2,13 +2,17 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
+from six import PY3, PY2
 
 import json
 import os
 import random
 import re
 import traceback
+import platform
+import locale
 from hashlib import md5
+
 # TODO
 try:
     from html import unescape
@@ -23,6 +27,10 @@ from hupu.api import logger
 from hupu.messages.messages import SocketMessage
 
 log = logger.getLogger(__name__)
+
+SYSTEM = platform.system().lower()
+
+PREFERREDENCODING = locale.getpreferredencoding(do_setlocale=False)
 
 HUPU_SALT = 'HUPU_SALT_AKJfoiwer394Jeiow4u309'
 
@@ -103,7 +111,10 @@ def colored_text(text, *style):
 
 
 def purge_text(text):
-    return unescape(re.sub(r'<[^>]+>|[\n\r\t]+', '', text))
+    text_sub = re.sub(r'<[^>]+>|[\n\r\t]+', '', text)
+    if not PY3:
+        return unescape(text_sub.decode('utf8')).encode('utf8')
+    return unescape(text_sub)
 
 
 def text_to_list(text, width):
