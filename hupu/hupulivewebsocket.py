@@ -65,6 +65,7 @@ class HupuLiveWebSocket(object):
 
     def run(self):
         token = self.get_token()
+        log.debug('token: {}'.format(token))
         t = int(time.time())
         ws = websocket.WebSocketApp(
             "ws://{host}:{port}/socket.io/1/websocket/{token}/?client={client}&t={t}&type=1&background=false".format(

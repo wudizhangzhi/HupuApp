@@ -34,7 +34,7 @@ class LoginMixin(Base):
             'password': password_md5,
             'crt': str(int(time.time() * 1000)),
             'night': '0',
-            'channel': 'oppo',
+            'channel': 'myapp',
             'client': self.client,
             'time_zone': 'Asia/Shanghai',
             'android_id': self.android_id,

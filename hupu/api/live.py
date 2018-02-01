@@ -5,6 +5,7 @@
 import datetime
 import json
 import time
+import traceback
 from random import choice
 
 from hupu.api import logger
@@ -111,6 +112,6 @@ class LiveMinxin(Base):
             tmp = ip_adress_list.split(':')
             host = tmp[0]
             port = int(tmp[1])
-        except:
-            pass
+        except Exception as e:
+            log.error(traceback.format_exc())
         return host, port
