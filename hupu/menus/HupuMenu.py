@@ -51,7 +51,7 @@ class HupuMenu(BaseMenu):
             newsdetail = self.hupuapp.getNewsDetailSchema(news.nid)
             # 正文
             content = purge_text(newsdetail.content)
-            # 中文显示问题
+            # TODO 中文显示问题
             self.jumpto_subpage(newsdetail.title, text_to_list(content, self.screen.getmaxyx()[0]))
         else:
             self.draw()
@@ -62,14 +62,10 @@ class HupuMenu(BaseMenu):
         self.screen.refresh()
         game_selected = self.items[self.current_option]
         host, port = self.hupuapp.getIpAdress()
-        # debug
         if not PY3:  # python2 unicode comaptible
             reset_sys_stdout()
         hs = HupuSocket(game=game_selected, client=self.hupuapp.client, host=host, port=port)
-        # try:
         hs.run()
-        # except KeyboardInterrupt:
         log.debug('文字直播停止')
-        # print('文字直播停止\n\r')
         time.sleep(1)
         self.draw()

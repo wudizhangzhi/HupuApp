@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
-# from __future__ import unicode_literals
-from six import python_2_unicode_compatible
-
 from hupu.messages.entries import StringEntry, IntEntry, ListEntry, to_text
 from hupu.api import logger
 
@@ -144,7 +141,6 @@ class SocketMessage(BaseMessage):
         super(SocketMessage, self).__init__(message)
 
 
-# @python_2_unicode_compatible
 class News(BaseMessage):
     """
     虎扑新闻

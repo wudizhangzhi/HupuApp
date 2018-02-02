@@ -3,9 +3,6 @@
 # @Time    : 2018/1/27 上午3:53
 # @Author  : wudizhangzhi
 
-import sys
-
-sys.path.append('../..')
 import time
 
 from hupu.api import logger

@@ -3,10 +3,6 @@
 # @Time    : 2018/1/27 上午3:53
 # @Author  : wudizhangzhi
 import json
-import sys
-
-sys.path.append('../..')
-import time
 
 from hupu.api import logger
 from hupu.api.base import Base

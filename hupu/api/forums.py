@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 上午3:58
 # @Author  : wudizhangzhi
-import datetime
 import time
 
 from . import logger

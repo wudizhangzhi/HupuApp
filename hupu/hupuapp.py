@@ -57,9 +57,9 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
     def run(self):
         # 判断参数, 执行哪一种场景
         # 默认进入比赛文字直播模式
-        mode = self._kwargs.get('mode', '') or 'live'
+        mode = self._kwargs.get('mode', 'live')
         mode = mode.lower()
-        assert mode in MODE_LIST, AttributeError('Expect mode is {}, got {}.'.format(', '.join(MODE_LIST), mode))
+        assert mode in MODE_LIST, AttributeError('Expected mode are {}, got {}.'.format(', '.join(MODE_LIST), mode))
         try:
             hupumenu = HupuMenu(self)
             items = []
@@ -75,10 +75,9 @@ class HupuApp(LiveMinxin, NewsMixin, LoginMixin, DatasMixin):
                 hupumenu.body_title = '球队数据:'
 
             elif mode == 'playerdata':  # 球队数据模式
-                datatype = self._kwargs.get('datatype')
+                datatype = self._kwargs.get('datatype', '').lower()
                 if not datatype or datatype not in ['regular', 'injury', 'daily']:
                     datatype = 'regular'
-                datatype = datatype.lower()
                 items = self.getPlayerDataInGenernal(datatype)
                 hupumenu.body_title = '球员数据:'
 

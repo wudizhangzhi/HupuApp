@@ -69,7 +69,6 @@ def bind_event(key_list, mode_list=None):
 
 
 class BaseMenu(object):
-    key_bind_events = defaultdict(dict)
 
     def __init__(self, title=None, body_title=None, addition_title=None):
         self.title = title

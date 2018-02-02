@@ -24,7 +24,7 @@ class HupuLiveWebSocket(object):
     def __init__(self, client, game, host=None, port=None, livetype=None):
         """
         虎扑文字直播websocket的基类
-        :param client: 
+        :param client: client id
         :param host: 
         :param port: 
         :param livetype: 文字直播的类型: [NBA, CBA]

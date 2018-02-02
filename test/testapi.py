@@ -17,23 +17,6 @@ class TestAPIMethods(unittest.TestCase):
     def setUp(self):
         self.hupuapp = HupuApp()
 
-    # def test_1_upper(self):
-    #     self.assertEqual('foo'.upper(), 'FOO')
-    #
-    # def test_2_isupper(self):
-    #     self.assertTrue('FOO'.isupper())
-    #     self.assertFalse('Foo'.isupper())
-    #
-    # def test_3_split(self):
-    #     s = 'hello world'
-    #     self.assertEqual(s.split(), ['hello', 'world'])
-    #     # check that s.split fails when the separator is not a string
-    #     with self.assertRaises(TypeError):
-    #         s.split(2)
-
-    # @unittest.expectedFailure
-    # def test_4_fail(self):
-    #     self.assertEqual(1, 0, 'broken')
     def test_getGames(self):
         games = self.hupuapp.getGames()
         with self.subTest(i=0):
