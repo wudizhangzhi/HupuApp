@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/1/27 下午2:22
 # @Author  : wudizhangzhi
+import sys
 from six import PY3, PY2
 
 import json
@@ -119,3 +120,8 @@ def purge_text(text):
 
 def text_to_list(text, width):
     return [i for i in re.findall(r'.{,%s}' % width, text) if i.strip()]
+
+
+def reset_sys_stdout():
+    if 'fdopen' not in sys.stdout.name:
+        sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
