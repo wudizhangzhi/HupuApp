@@ -9,9 +9,9 @@ from sqlalchemy.orm import (sessionmaker, relationship)
 Base = declarative_base()
 # 初始化数据库连接:
 try:
-    engine = create_engine('mysql+pymysql://root:@localhost:3306/hupu', echo=False)
+    engine = create_engine('mysql+pymysql://root:@localhost:3306/hupu?charset=utf8mb4', echo=False)
 except ModuleNotFoundError:
-    engine = create_engine('mysql+mysqldb://root:@localhost:3306/hupu', echo=False)
+    engine = create_engine('mysql+mysqldb://root:@localhost:3306/hupu?charset=utf8mb4', echo=False)
 
 
 class BBSPost(Base):  # 帖子
