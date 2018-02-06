@@ -94,4 +94,4 @@ ITEM_PIPELINES = {
 LOG_MAXBYTES = 20
 LOG_ENABLED = True
 LOG_LEVEL = "DEBUG"
-LOG_FILE = "log.txt"
+LOG_FILE = "log.log"

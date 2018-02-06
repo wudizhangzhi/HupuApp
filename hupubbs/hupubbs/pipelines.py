@@ -11,7 +11,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from hupubbs.base.models import JRS, BBSPostComment, BBSPost
 from scrapy import log
 from scrapy.exceptions import DropItem
-
+import traceback
 
 def scrapydebug(msg, level=None):
     if not level:
@@ -96,29 +96,44 @@ class HupubbsPipeline(object):
                                         content=comment_content)
 
     def create_jrs(self, name, uid, avatar):
-        jrs = JRS(name=name, uid=uid, avatar=avatar)
-        self.session.add(jrs)
-        self.session.commit()
-        scrapydebug('保存: {!r}'.format(jrs))
+        jrs = None
+        try:
+            jrs = JRS(name=name, uid=uid, avatar=avatar)
+            self.session.add(jrs)
+            self.session.commit()
+            scrapydebug('保存: {!r}'.format(jrs))
+        except Exception as e:
+            self.session.rollback()
+            scrapydebug(traceback.format_exc())
         return jrs
 
     def create_post(self, title, author_id, bbsid, post_time, content):
         # if not (title, author_id, bbsid, post_time):
         #     raise Exception('数据不全: title: {} author_id: {}')
-        post_time = post_time or None
-        post = BBSPost(title=title, author_id=author_id, bbsid=bbsid, post_time=post_time,
-                       content=content)
-        self.session.add(post)
-        self.session.commit()
-        scrapydebug('保存: {!r}'.format(post))
+        post = None
+        try:
+            post_time = post_time or None
+            post = BBSPost(title=title, author_id=author_id, bbsid=bbsid, post_time=post_time,
+                           content=content)
+            self.session.add(post)
+            self.session.commit()
+            scrapydebug('保存: {!r}'.format(post))
+        except Exception as e:
+            self.session.rollback()
+            scrapydebug(traceback.format_exc())
         return post
 
     def create_comment(self, comment_id, post_id, author_id, comment_time, content):
-        comment_time = comment_time or None
-        comment = BBSPostComment(comment_id=comment_id, post_id=post_id,
-                                 author_id=author_id, comment_time=comment_time,
-                                 content=content)
-        self.session.add(comment)
-        self.session.commit()
-        scrapydebug('保存: {!r}'.format(comment))
+        comment = None
+        try:
+            comment_time = comment_time or None
+            comment = BBSPostComment(comment_id=comment_id, post_id=post_id,
+                                     author_id=author_id, comment_time=comment_time,
+                                     content=content)
+            self.session.add(comment)
+            self.session.commit()
+            scrapydebug('保存: {!r}'.format(comment))
+        except Exception as e:
+            self.session.rollback()
+            scrapydebug(traceback.format_exc())
         return comment

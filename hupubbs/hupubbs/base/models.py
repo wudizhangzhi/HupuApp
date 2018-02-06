@@ -87,6 +87,7 @@ def test():
     print(query)
     r = query.filter(BBSPost.author_id == 12).order_by(BBSPost.createtime.desc()).all()
     print(r)
+    session.rollback()
 
     # insert jrs
     # jrs = JRS(uid=123456, name='jack')
