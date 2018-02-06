@@ -24,7 +24,8 @@ redis_client = redis.Redis(connection_pool=pool)
 
 char_not_append = punctuation + digits + zhon_punctuation + ascii_letters
 
-exclude_word = ['mhupucom', 'iPhone', '客户端', 'Android', '手机', '发自', '此帖', 'MR', '的']
+exclude_word = ['mhupucom', 'iPhone', '客户端', 'Android',
+                '手机', '发自', '此帖', 'MR', '的', '发表', '引用', '翻译', '楼主']
 flag_list = ['n', 'nr', 'v', 'a', 'vn', 'ns']
 
 
@@ -62,8 +63,8 @@ def word2vec():
     pass
 
 
-def showwordcloud_from_frequent(text_frequent):
-    alice_mask = np.array(Image.open("/Users/admin/alice_mask.png"))
+def showwordcloud_from_frequent(text_frequent, maskfile, fontpath):
+    alice_mask = np.array(Image.open(maskfile))
 
     stopwords = set(STOPWORDS)
     stopwords.add("said")
@@ -72,12 +73,12 @@ def showwordcloud_from_frequent(text_frequent):
                    max_words=2000,
                    mask=alice_mask,
                    stopwords=stopwords,
-                   font_path="/Users/admin/Arial.ttf", )
+                   font_path=fontpath, )
     # generate word cloud
     wc.generate_from_frequencies(text_frequent)
 
     # store to file
-    wc.to_file("alice.png")
+    wc.to_file("output.png")
 
     # show
     plt.imshow(wc, interpolation='bilinear')
@@ -85,20 +86,22 @@ def showwordcloud_from_frequent(text_frequent):
     plt.figure()
 
 
-def display_hupu_word_cloud():
+def display_hupu_word_cloud(maskfile, fontpath):
     generator = redis_client.zscan_iter('frequent', score_cast_func=int)
     vocabulary = {}
     while True:
         try:
             _char, score = next(generator)
             _char = _char.decode('utf8')
+            if _char  in exclude_word:
+                continue
             # vocabulary.append({_char: score})
             vocabulary[_char] = score
             print('{} :{}'.format(_char, score))
         except StopIteration as e:
             break
 
-    showwordcloud_from_frequent(vocabulary)
+    showwordcloud_from_frequent(vocabulary, maskfile=maskfile, fontpath=fontpath)
 
 
 def ludingji(filepath):
@@ -113,4 +116,5 @@ def ludingji(filepath):
 
 if __name__ == '__main__':
     # count_words()
-    display_hupu_word_cloud()
+    display_hupu_word_cloud('/Users/zhangzhichao/Pictures/stormtrooper_mask.png',
+                            '/Users/zhangzhichao/github/taidiiv2/taidii/public/font/arialuni.ttf')
