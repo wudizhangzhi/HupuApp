@@ -25,6 +25,7 @@ class LiveMinxin(Base):
 
         games = games_json['result']['games']
         games_today = [i for i in games if i['day'] == today]
+        assert len(games_today) > 0, Exception('今日没有比赛: {}'.format(today))
         games_today = games_today[0]
         # rank_url = games_today['rank_url']
         game_datas = games_today['data']
