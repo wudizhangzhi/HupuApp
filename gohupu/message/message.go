@@ -22,6 +22,7 @@ type LiveMsg struct {
 	Status       string `json:"status"`
 	Pid          int    `json:"pid"`
 	RoomLiveType string `json:"room_live_type"`
+	OnLine       string `json:"online"`
 	Result       Result `json:"result"`
 }
 

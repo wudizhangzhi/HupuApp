@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type LiveClient struct {
+type Client struct {
 	WsConn  *websocket.Conn
 	Domain  string
 	Th      *time.Ticker
@@ -18,7 +18,7 @@ type LiveClient struct {
 }
 
 // 获取token
-func (c *LiveClient) fetchToken() (string, error) {
+func (c *Client) FetchToken() (string, error) {
 	var token string
 	client := &http.Client{}
 	t := time.Now().Second()
@@ -44,7 +44,7 @@ func (c *LiveClient) fetchToken() (string, error) {
 	return token, nil
 }
 
-func (c *LiveClient) Connect() {
+func (c *Client) Connect() {
 	url := "wss://" + c.Domain + "/v1/recognize?model=en-US_BroadbandModel&access_token="
 	log.Println("创建连接")
 	wsConn, _, err := websocket.DefaultDialer.Dial(url, nil)
@@ -58,23 +58,23 @@ func init() {
 
 }
 
-func (c *LiveClient) OnMessage() {
+func (c *Client) OnMessage() {
 	for {
-		msgType, message, err := c.WsConn.ReadMessage()
-		if err != nil {
-			log.Printf("接收数据报错, 退出: %s", err)
-			if c.ErrorCh != nil {
-				c.ErrorCh <- err
-			}
-			break
-		}
-		txtMsg := message
-		switch msgType {
-		case websocket.TextMessage:
-			//
-		case websocket.BinaryMessage:
-			// txtMsg, err = o.GzipDecode(message)
-		}
+		// msgType, message, err := c.WsConn.ReadMessage()
+		// if err != nil {
+		// 	log.Printf("接收数据报错, 退出: %s", err)
+		// 	if c.ErrorCh != nil {
+		// 		c.ErrorCh <- err
+		// 	}
+		// 	break
+		// }
+		// txtMsg := message
+		// switch msgType {
+		// case websocket.TextMessage:
+		// 	//
+		// case websocket.BinaryMessage:
+		// 	// txtMsg, err = o.GzipDecode(message)
+		// }
 		// 处理response
 	}
 }
