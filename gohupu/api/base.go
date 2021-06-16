@@ -3,9 +3,12 @@ package api
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"math/rand"
 	"net/http"
+	net_url "net/url"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/wudizhangzhi/HupuApp"
 )
@@ -13,9 +16,9 @@ import (
 var HupuHttpobj HupuHttp
 
 type HupuHttp struct {
-	Client  *http.Client
-	Method  string
-	Params  map[string]string
+	Client *http.Client
+	// Method  string
+	// Params  map[string]string
 	Headers map[string]string
 }
 
@@ -30,8 +33,13 @@ type HupuHttp struct {
 //     return md5(result.encode('utf8')).hexdigest()
 
 func init() {
+	rand.Seed(time.Now().Unix())
+	agent := HupuApp.ANDROID_USER_AGENT[rand.Intn(len(HupuApp.ANDROID_USER_AGENT))]
 	HupuHttpobj = HupuHttp{
 		Client: &http.Client{},
+		Headers: map[string]string{
+			"User-Agent": agent,
+		},
 	}
 }
 
@@ -57,13 +65,21 @@ func getSortParam(params map[string]string) string {
 func (hh *HupuHttp) Request(method string, url string, headers map[string]string, params map[string]string) (*http.Response, error) {
 	sign := getSortParam(params)
 	params["sign"] = sign
+	var req *http.Request
+	var err error
 	switch method {
 	case "POST":
-		data := make(map[string][]string)
+		// data := make(map[string][]string)
+		data := net_url.Values{}
 		for k, v := range params {
 			data[k] = []string{v}
 		}
-		return hh.Client.PostForm(url, data)
+		req, err = http.NewRequest(method, url, strings.NewReader(data.Encode()))
+		if err != nil {
+			return nil, err
+		}
+
+		// return hh.Client.PostForm(url, data)
 	case "GET":
 		// format url param
 		req, err := http.NewRequest(method, url, nil)
@@ -75,8 +91,11 @@ func (hh *HupuHttp) Request(method string, url string, headers map[string]string
 			q.Add(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
-		return hh.Client.Do(req)
+		// return hh.Client.Do(req)
 	}
-
-	return nil, nil
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	for k, v := range hh.Headers {
+		req.Header.Set(k, v)
+	}
+	return hh.Client.Do(req)
 }
