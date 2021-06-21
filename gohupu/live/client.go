@@ -142,7 +142,7 @@ func (c *Client) OnMessage() {
 			if c.Connected {
 				c.Send(message.MsgRespMsgTwo)
 			} else {
-				c.Connected = false
+				c.Connected = true
 				c.Send(message.MsgRespMsgTwoConnected)
 			}
 
