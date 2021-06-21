@@ -23,7 +23,7 @@ type LiveMsg struct {
 	Gid          string `json:"gid"`
 	Status       string `json:"status"`
 	Pid          int    `json:"pid"`
-	RoomLiveType string `json:"room_live_type"`
+	RoomLiveType int    `json:"room_live_type"`
 	OnLine       string `json:"online"`
 	Result       Result `json:"result"`
 }
@@ -43,15 +43,18 @@ type Result struct {
 // 	"t": 1623374555
 //   }
 type EventMsg struct {
-	Uid     int64  `json:"content>uid"`
-	Event   string `json:"content>event"`
-	EndTime string `json:"content>end_time"`
-	T       int    `json:"content>t"`
-	// Team    int    `json:"content"`
+	RowId   int `json:"rowId"`
+	Content struct {
+		Uid     string `json:"uid"`
+		Event   string `json:"event"`
+		EndTime string `json:"end_time"`
+		T       int    `json:"t"`
+		// Team    int    `json:"content"`
+	} `json:"content"`
 }
 
 func (m EventMsg) String() string {
-	return fmt.Sprintf("%s: %s", m.EndTime, m.Event)
+	return fmt.Sprintf("%s: %s", m.Content.EndTime, m.Content.Event)
 }
 
 // 1::

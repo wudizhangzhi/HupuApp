@@ -34,7 +34,7 @@ func TestLive(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	game := games[0]
+	game := games[len(games)-1]
 	fmt.Printf("选择game: %+v\n", game)
 	client := live.Client{
 		Domain: api.Domain,

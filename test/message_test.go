@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -29,6 +30,10 @@ func TestWSMessageExtract(t *testing.T) {
 		t.Error("解析EventMsgs错误")
 		return
 	}
+	fmt.Println(wsmsg.Args[0].Room)
+	fmt.Println(wsmsg.Args[0].Result.Score)
+	fmt.Println(wsmsg.Args[0].Result.Data[0])
+	fmt.Println(wsmsg.Args[0].Result.Data[0].EventMsgs[0])
 	// fmt.Println(jsoniter.Get(data, "args", 0, "result", "data", 0).ToString())
 }
 

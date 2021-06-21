@@ -96,7 +96,7 @@ func loadResponse(respMsg []byte) (interface{}, error) {
 		return &message.MsgNBAStart{}, nil
 	default:
 		msg := message.WsMsg{}
-		if err := json.Unmarshal(respMsg, &msg); err != nil {
+		if err := json.Unmarshal(respMsg[11:], &msg); err != nil {
 			return nil, err
 		}
 		return &msg, nil
@@ -129,7 +129,9 @@ func (c *Client) OnMessage() {
 		}
 		// 处理response
 		msgResp, err := loadResponse(txtMsg)
-		fmt.Printf("收到的消息: %s\n", txtMsg)
+		if len(txtMsg) < 100 {
+			fmt.Printf("收到的消息: %s\n", txtMsg)
+		}
 		if err != nil {
 			c.ErrorCh <- err
 			break
@@ -149,13 +151,23 @@ func (c *Client) OnMessage() {
 		case *message.MsgNBAStart:
 			c.Send(fmt.Sprintf(message.MsgRespMsgNBAStart, c.Game.Gid, c.Pid))
 		case *message.WsMsg: // 如果是直播消息, 处理
-			// TODO
-			// fmt.Println(msg.Args[0].Result.Data[0].EventMsgs)
-			for _, m := range msg.Args[0].Result.Data[0].EventMsgs {
-				fmt.Println(m)
+			c.HandleLiveMsg(msg)
+			if msg.Args[0].RoomLiveType == -1 {
+				// 比赛结束
+				fmt.Println("----- 直播结束了, 即将退回菜单 -----")
+				c.OprCh <- "finish"
 			}
 		}
 
+	}
+}
+
+// 格式化直播消息
+func (c *Client) HandleLiveMsg(msg *message.WsMsg) {
+	// TODO
+	// fmt.Println(msg.Args[0].Result.Data[0].EventMsgs)
+	for _, m := range msg.Args[0].Result.Data[0].EventMsgs {
+		fmt.Println(m)
 	}
 }
 
@@ -168,10 +180,14 @@ OutLoop:
 			break OutLoop
 		case err := <-c.ErrorCh:
 			// 错误
-			fmt.Printf("报错！： %s", err)
+			fmt.Printf("报错！： %s\n", err)
 			break OutLoop
-		case <-c.OprCh:
+		case op := <-c.OprCh:
 			// 输入
+			switch op {
+			case "finish":
+				break OutLoop
+			}
 		case <-c.Th.C: // 心跳
 			c.heartbeat()
 		}
