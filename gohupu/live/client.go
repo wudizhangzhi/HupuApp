@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
 	"github.com/wudizhangzhi/HupuApp"
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
@@ -47,7 +48,7 @@ func (c *Client) FetchToken() (string, error) {
 	q.Add("type", "1")
 	q.Add("background", "false")
 	req.URL.RawQuery = q.Encode()
-	fmt.Printf("获取token: %s\n", req.URL.RawQuery)
+	log.Printf("获取token: %s\n", req.URL.RawQuery)
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
@@ -57,7 +58,6 @@ func (c *Client) FetchToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(string(respBody))
 	token = strings.Split(string(respBody), ":50:60")[0]
 	return token, nil
 }
@@ -78,7 +78,7 @@ func (c *Client) Connect() {
 }
 
 func (c *Client) Send(msg string) {
-	fmt.Printf("发送: %s\n", msg)
+	log.Printf("发送: %s\n", msg)
 	c.WsConn.WriteMessage(websocket.TextMessage, []byte(msg))
 }
 
@@ -114,7 +114,14 @@ func (c *Client) OnMessage() {
 	for {
 		msgType, p, err := c.WsConn.ReadMessage()
 		if err != nil {
-			log.Printf("接收数据报错, 退出: %s", err)
+			if err != nil {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					log.Printf("error: %v", err)
+					c.OprCh <- "close"
+				}
+				break
+			}
+			log.Printf("接收数据报错, 退出: %s\n", err)
 			if c.ErrorCh != nil {
 				c.ErrorCh <- err
 			}
@@ -130,7 +137,7 @@ func (c *Client) OnMessage() {
 		// 处理response
 		msgResp, err := loadResponse(txtMsg)
 		if len(txtMsg) < 100 {
-			fmt.Printf("收到的消息: %s\n", txtMsg)
+			log.Printf("收到的消息: %s\n", txtMsg)
 		}
 		if err != nil {
 			c.ErrorCh <- err
@@ -166,8 +173,10 @@ func (c *Client) OnMessage() {
 func (c *Client) HandleLiveMsg(msg *message.WsMsg) {
 	// TODO
 	// fmt.Println(msg.Args[0].Result.Data[0].EventMsgs)
+	score := msg.Args[0].Result.Score.String()
 	for _, m := range msg.Args[0].Result.Data[0].EventMsgs {
-		fmt.Println(m)
+		// fmt.Println(score + " | " + m.String())
+		fmt.Fprintf(color.Output, "%s | %s\n", color.GreenString(score), m.String())
 	}
 }
 
@@ -180,12 +189,14 @@ OutLoop:
 			break OutLoop
 		case err := <-c.ErrorCh:
 			// 错误
-			fmt.Printf("报错！： %s\n", err)
+			log.Printf("报错！： %s\n", err)
 			break OutLoop
 		case op := <-c.OprCh:
 			// 输入
 			switch op {
 			case "finish":
+				break OutLoop
+			case "close":
 				break OutLoop
 			}
 		case <-c.Th.C: // 心跳

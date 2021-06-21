@@ -1,6 +1,11 @@
 package message
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/fatih/color"
+)
 
 type WsMsg struct {
 	Name string    `json:"name"`
@@ -16,6 +21,21 @@ type ScoreBoard struct {
 	AwayScore string `json:"away_score"`
 	Process   string `json:"process"`
 	// Status    int    `json:"status"`
+}
+
+func (s ScoreBoard) String() string {
+	return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, s.AwayScore, s.HomeScore, s.HomeName, s.Process)
+}
+
+func (s ScoreBoard) ColoredString() string {
+	red := color.New(color.FgRed).SprintFunc()
+	awayscore, _ := strconv.ParseInt(s.AwayScore, 10, 8)
+	homescore, _ := strconv.ParseInt(s.HomeScore, 10, 8)
+	if awayscore > homescore {
+		return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, red(s.AwayScore), s.HomeScore, s.HomeName, s.Process)
+	} else {
+		return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, s.AwayScore, red(s.HomeScore), s.HomeName, s.Process)
+	}
 }
 
 type LiveMsg struct {
