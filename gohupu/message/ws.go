@@ -1,5 +1,12 @@
 package message
 
+import "fmt"
+
+type WsMsg struct {
+	Name string    `json:"name"`
+	Args []LiveMsg `json:"args"`
+}
+
 type ScoreBoard struct {
 	HomeTid   string `json:"home_tid"`
 	HomeName  string `json:"home_name"`
@@ -9,11 +16,6 @@ type ScoreBoard struct {
 	AwayScore string `json:"away_score"`
 	Process   string `json:"process"`
 	// Status    int    `json:"status"`
-}
-
-type WsMsg struct {
-	Name string    `json:"name"`
-	Args []LiveMsg `json:"args"`
 }
 
 type LiveMsg struct {
@@ -47,3 +49,23 @@ type EventMsg struct {
 	T       int    `json:"content>t"`
 	// Team    int    `json:"content"`
 }
+
+func (m EventMsg) String() string {
+	return fmt.Sprintf("%s: %s", m.EndTime, m.Event)
+}
+
+// 1::
+type MsgOne struct{}
+
+// 2::
+type MsgTwo struct{}
+
+// '1::/nba_v1'
+type MsgNBAStart struct{}
+
+var (
+	MsgRespMsgOne          = "2:::"
+	MsgRespMsgTwo          = "2::"
+	MsgRespMsgTwoConnected = "1::/nba_v1"
+	MsgRespMsgNBAStart     = `5::/nba_v1:{"args":[{"roomid":-1,"gid":%s,"pid":%d,"room":"NBA_PLAYBYPLAY_CASINO"}],"name":"join"}`
+)

@@ -8,7 +8,7 @@ import (
 	"github.com/wudizhangzhi/HupuApp/gohupu/message"
 )
 
-func TestMessageExtract(t *testing.T) {
+func TestWSMessageExtract(t *testing.T) {
 	data, err := ioutil.ReadFile("livemsg.txt")
 	if err != nil {
 		t.Error(err)
@@ -30,4 +30,25 @@ func TestMessageExtract(t *testing.T) {
 		return
 	}
 	// fmt.Println(jsoniter.Get(data, "args", 0, "result", "data", 0).ToString())
+}
+
+func TestMessageGameExtract(t *testing.T) {
+	data, err := ioutil.ReadFile("messagegame.txt")
+	if err != nil {
+		t.Error(err)
+	}
+	var msg message.MsgGame
+	err = json.Unmarshal(data, &msg)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if len(msg.Result.DayGames) <= 0 {
+		t.Error("解析DayGames错误")
+		return
+	}
+	if len(msg.Result.DayGames[0].Games) <= 0 {
+		t.Error("解析Games错误")
+		return
+	}
 }

@@ -1,12 +1,10 @@
 package api
 
 import (
-	"crypto/md5"
-	"encoding/hex"
+	"fmt"
 	"math/rand"
 	"net/http"
 	net_url "net/url"
-	"sort"
 	"strings"
 	"time"
 
@@ -19,18 +17,10 @@ type HupuHttp struct {
 	Client *http.Client
 	// Method  string
 	// Params  map[string]string
-	Headers map[string]string
+	Headers   map[string]string
+	IMEI      string
+	AndroidId string // 也是clientid
 }
-
-// def getSortParam(**kwargs):
-//     result = ''
-//     kwargs_sorted = sorted(kwargs)
-//     for key in kwargs_sorted:
-//         if len(result) > 0:
-//             result += '&'
-//         result += '='.join((key, str(kwargs.get(key))))
-//     result += HUPU_SALT
-//     return md5(result.encode('utf8')).hexdigest()
 
 func init() {
 	rand.Seed(time.Now().Unix())
@@ -38,32 +28,17 @@ func init() {
 	HupuHttpobj = HupuHttp{
 		Client: &http.Client{},
 		Headers: map[string]string{
-			"User-Agent": agent,
+			"User-Agent": agent + " kanqiu/" + HupuApp.API_VERSION + ".13305/7214 isp/-1 network/-1",
 		},
+		IMEI:      HupuApp.GetRandomImei(0, ""),
+		AndroidId: HupuApp.GetAndroidId(),
 	}
-}
-
-func getSortParam(params map[string]string) string {
-	result := ""
-	keys := make([]string, 0)
-	for k, _ := range params {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, key := range keys {
-		if len(result) > 0 {
-			result += "&"
-		}
-		result += strings.Join([]string{key, params[key]}, "=")
-	}
-	result += HupuApp.HUPU_SALT
-	h := md5.New()
-	h.Write([]byte(result))
-	return hex.EncodeToString(h.Sum(nil))
+	fmt.Printf("初始化: %+v\n", HupuHttpobj)
 }
 
 func (hh *HupuHttp) Request(method string, url string, headers map[string]string, params map[string]string) (*http.Response, error) {
-	sign := getSortParam(params)
+	fmt.Printf("访问接口: [%s] %s\n", method, url)
+	sign := HupuApp.GetSortParam(params)
 	params["sign"] = sign
 	var req *http.Request
 	var err error
@@ -75,14 +50,13 @@ func (hh *HupuHttp) Request(method string, url string, headers map[string]string
 			data[k] = []string{v}
 		}
 		req, err = http.NewRequest(method, url, strings.NewReader(data.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		if err != nil {
 			return nil, err
 		}
-
-		// return hh.Client.PostForm(url, data)
 	case "GET":
 		// format url param
-		req, err := http.NewRequest(method, url, nil)
+		req, err = http.NewRequest(method, url, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -91,11 +65,12 @@ func (hh *HupuHttp) Request(method string, url string, headers map[string]string
 			q.Add(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
-		// return hh.Client.Do(req)
+		fmt.Printf("参数: %s\n", req.URL.RawQuery)
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	for k, v := range hh.Headers {
 		req.Header.Set(k, v)
 	}
+	fmt.Printf("headers: %+v\n", req.Header)
 	return hh.Client.Do(req)
 }
