@@ -42,8 +42,7 @@ TAC_LIST = ['35651900', '35666503', '91054200',
 
 
 def luhn_residue(digits):
-    return sum(sum(divmod(int(d) * (1 + i % 2), 10))
-               for i, d in enumerate(digits[::-1])) % 10
+    return sum(sum(divmod(int(d) * (1 + i % 2), 10)) for i, d in enumerate(digits[::-1])) % 10
 
 
 def get_random_Imei(N=None, filename=None):

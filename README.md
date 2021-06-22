@@ -91,3 +91,20 @@ Options:
 * [ ] websocket的研究
 * [ ] 新闻的显示问题
 * [ ] python2, python3的兼容问题(主要为python2 curse websocket print)
+
+
+# go 版本的架构
+
+- api
+    - live 直播
+    - base 基础
+- message
+    - ws   
+    - http
+- client
+    - http client
+    - ws client
+- menu
+    - base
+    - main
+    - live
