@@ -16,8 +16,6 @@ jobs:
             goos: darwin 
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: "goversion"
     - uses: wangyoucao577/go-release-action@v1.18
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
