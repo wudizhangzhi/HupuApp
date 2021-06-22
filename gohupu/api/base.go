@@ -23,6 +23,7 @@ type HupuHttp struct {
 }
 
 func init() {
+	// 初始化虎扑专用http连接
 	rand.Seed(time.Now().Unix())
 	agent := HupuApp.ANDROID_USER_AGENT[rand.Intn(len(HupuApp.ANDROID_USER_AGENT))]
 	HupuHttpobj = HupuHttp{

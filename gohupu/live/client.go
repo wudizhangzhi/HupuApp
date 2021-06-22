@@ -25,6 +25,7 @@ type Client struct {
 	Pid         int          // (内部接口获取的参数)
 	Game        message.Game // 比赛(外部接口获取的参数)
 	Connected   bool         // ws中是否已连接
+	LastTime    int          // (内部接口获取，用于比对直播数据时间)
 	Th          *time.Ticker
 	ErrorCh     chan interface{} // 错误channel
 	OprCh       chan interface{} // 操作通道?
@@ -80,10 +81,6 @@ func (c *Client) Connect() {
 func (c *Client) Send(msg string) {
 	log.Printf("发送: %s\n", msg)
 	c.WsConn.WriteMessage(websocket.TextMessage, []byte(msg))
-}
-
-func init() {
-
 }
 
 func loadResponse(respMsg []byte) (interface{}, error) {
@@ -176,7 +173,10 @@ func (c *Client) HandleLiveMsg(msg *message.WsMsg) {
 	score := msg.Args[0].Result.Score.String()
 	for _, m := range msg.Args[0].Result.Data[0].EventMsgs {
 		// fmt.Println(score + " | " + m.String())
-		fmt.Fprintf(color.Output, "%s | %s\n", color.GreenString(score), m.String())
+		if c.LastTime == 0 || c.LastTime < m.Content.T {
+			fmt.Fprintf(color.Output, "%s | %s\n", color.GreenString(score), m.String())
+			c.LastTime = m.Content.T
+		}
 	}
 }
 
@@ -211,7 +211,7 @@ OutLoop:
 
 func (c *Client) Start() {
 	// 初始化
-	c.Pid = 617
+	c.Pid = 617 // 先默认设定一个数值，之后更新
 	c.ErrorCh = make(chan interface{}, 1)
 	c.InterruptCh = make(chan os.Signal, 1)
 	c.OprCh = make(chan interface{})

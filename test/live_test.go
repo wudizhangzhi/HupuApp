@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/wudizhangzhi/HupuApp"
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
@@ -33,6 +34,9 @@ func TestLive(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 		return
+	}
+	if len(games) == 0 {
+		games, _ = api.GetGameFromDate(api.NBA, time.Now().AddDate(0, 0, -1).Format("20060102"))
 	}
 	game := games[len(games)-1]
 	fmt.Printf("选择game: %+v\n", game)

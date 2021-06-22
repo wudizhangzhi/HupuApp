@@ -136,3 +136,17 @@ func GetGameToday(gametype GameType) ([]message.Game, error) {
 	}
 	return result, nil
 }
+
+func GetGameFromDate(gametype GameType, date string) ([]message.Game, error) {
+	result := make([]message.Game, 0)
+	dayGames, err := GetDayGames(gametype)
+	if err != nil {
+		return result, nil
+	}
+	for _, dayGame := range dayGames {
+		if dayGame.Day == date {
+			result = append(result, dayGame.Games...)
+		}
+	}
+	return result, nil
+}
