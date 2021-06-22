@@ -170,11 +170,12 @@ func (c *Client) OnMessage() {
 func (c *Client) HandleLiveMsg(msg *message.WsMsg) {
 	// TODO
 	// fmt.Println(msg.Args[0].Result.Data[0].EventMsgs)
-	score := msg.Args[0].Result.Score.String()
+	score := msg.Args[0].Result.Score.ColoredString()
 	for _, m := range msg.Args[0].Result.Data[0].EventMsgs {
 		// fmt.Println(score + " | " + m.String())
 		if c.LastTime == 0 || c.LastTime < m.Content.T {
-			fmt.Fprintf(color.Output, "%s | %s\n", color.GreenString(score), m.String())
+			// fmt.Fprintf(color.Output, "%s | %s\n", color.GreenString(score), m.String())
+			fmt.Fprintf(color.Output, "%s | %s\n", score, m.String())
 			c.LastTime = m.Content.T
 		}
 	}
