@@ -175,7 +175,6 @@ func (c *Client) OnMessage() {
 // 格式化直播消息
 func (c *Client) HandleLiveMsg(msg *message.WsMsg) {
 	if len(msg.Args) > 0 && len(msg.Args[0].Result.Data) > 0 {
-		// TODO
 		s := msg.Args[0].Result.Score
 		if s.AwayName != "" {
 			c.AwayName = s.AwayName
@@ -185,9 +184,7 @@ func (c *Client) HandleLiveMsg(msg *message.WsMsg) {
 		}
 		score := s.ColoredString()
 		for _, m := range msg.Args[0].Result.Data[0].EventMsgs {
-			// fmt.Println(score + " | " + m.String())
 			if c.LastTime == 0 || c.LastTime < m.Content.T {
-				// fmt.Fprintf(color.Output, "%s | %s\n", color.GreenString(score), m.String())
 				fmt.Fprintf(color.Output, "%s %s %s %s| %s\n", c.AwayName, score, c.HomeName, s.Process, m.String())
 				c.LastTime = m.Content.T
 			}

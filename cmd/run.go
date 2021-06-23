@@ -14,7 +14,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	// // TODO 测试, 今日无比赛
+	// TODO 测试用, 今日无比赛
 	// if len(games) == 0 {
 	// 	games, _ = api.GetGameFromDate(api.NBA, time.Now().AddDate(0, 0, -1).Format("20060102"))
 	// }

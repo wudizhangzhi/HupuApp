@@ -7,60 +7,33 @@
 
 window的适配也在努力中...
 
+# go 版本的架构
+
+- cmd 入口
+- gohupu
+    - api
+        - live.go 直播接口
+        - base.go 接口基础
+    - message
+        - ws.go   websocket消息
+        - http.go http消息
+    - live
+        - client.go 直播客户端
+    - menu
+        - base.go   基础
+        - live.go   直播菜单
+    - logger  日志
+- constant.go  常量，设置等
+- utils.go     公用方法
+
 ### 测试环境
-* macos 10.12.6
-* Python 3.6.1 
-
-## requirements
-
-```
-curses
-docopt==0.6.2
-requests==2.18.4
-six>=1.10.0
-colored==1.3.5
-user-agent==0.1.9
-websocket-client==0.46.0
-future==0.16.0
-```
+* go version go1.16.4 windows/amd64
 
 ## 安装
-推荐使用 pip 进行安装
-```
-pip install HupuApp
-```
-安装完成后命令行直接运行`HupuApp`
-
- ## Window安装
- (感谢@[harmonicahappy](https://github.com/harmonicahappy))
- ```
- 原因及解决办法：
- Windows不支持curses，所以得去https://www.lfd.uci.edu/~gohlke/pythonlibs/#curses 下载符合系统版本的whl，然后命令行使用 python -m pip install xxx.whl，安装了以后才能在Windows下运行HupuApp
- ```
+在[release](https://github.com/wudizhangzhi/HupuApp/releases)页面中选择符合自己系统版本的下载，然后直接执行
 
 ## 使用指南
-```shell
-"""Hupu.
-    Proudly presented by Hupu JRs.
-
-Usage:
-    hupu [-m MODE] [-a APIVERSION] [-d DATATYPE] [-u USERNAME] [-p PASSWORD]
-    hupu -h | --help
-    hupu -v | --version
-
-Tips:
-    Please hit Ctrl-C on the keyborad when you want to interrupt the game live.
-
-Options:
-    -u USERNAME --username=USERNAME         Input username.
-    -p PASSWORD --password=PASSWORD         Input password.
-    -a APIVERSION --apiversion=APIVERSION   Api version.[default: 7.1.15]
-    -m MODE --mode=MODE                     Run mode.Available: live news teamranks...[default: live]
-    -d DATATYPE --datatype=DATATYPE         Player data type.Available: regular, injury, daily.[default:regular]
-    -h --help                               Show this help message and exit.
-    -v --version                            Show version.
-"""
-```
+方向键上下控制选项，回车选择，ctrl+c中途退出。
 
 ## 虎扑直播
 ![hupu_live](images/hupu_live.gif)
@@ -87,24 +60,7 @@ Options:
 
 
 ## To-do list
-* [ ] 框架的设计, 绝对可以改进
-* [ ] websocket的研究
-* [ ] 新闻的显示问题
-* [ ] python2, python3的兼容问题(主要为python2 curse websocket print)
+* [ ] go版本其他功能(新闻，数据等)
+* [ ] 文字美化
 
 
-# go 版本的架构
-
-- api
-    - live 直播
-    - base 基础
-- message
-    - ws   
-    - http
-- client
-    - http client
-    - ws client
-- menu
-    - base
-    - main
-    - live
