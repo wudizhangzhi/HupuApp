@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
 	"github.com/wudizhangzhi/HupuApp/gohupu/live"
@@ -38,5 +39,7 @@ func main() {
 		Domain: api.Domain,
 		Game:   game,
 	}
+	// 退出过快可能导致print打印不显示
+	time.Sleep(1 * time.Second)
 	client.Start()
 }
