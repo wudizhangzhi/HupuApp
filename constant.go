@@ -12,6 +12,7 @@ const (
 	API_GET_PLAY_BY_PLAY = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/room/getPlaybyplay"
 	// 一些设置
 	LIVE_HEART_BEAT_PERIOD = 10 // 直播心跳间隔时间
+	LOG_FILE               = "hupu.log"
 )
 
 var (

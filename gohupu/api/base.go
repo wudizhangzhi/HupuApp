@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"math/rand"
 	"net/http"
 	net_url "net/url"
@@ -9,6 +8,7 @@ import (
 	"time"
 
 	"github.com/wudizhangzhi/HupuApp"
+	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
 )
 
 var HupuHttpobj HupuHttp
@@ -34,11 +34,11 @@ func init() {
 		IMEI:      HupuApp.GetRandomImei(0, ""),
 		AndroidId: HupuApp.GetAndroidId(),
 	}
-	fmt.Printf("初始化: %+v\n", HupuHttpobj)
+	logger.Info.Printf("初始化: %+v\n", HupuHttpobj)
 }
 
 func (hh *HupuHttp) Request(method string, url string, headers map[string]string, params map[string]string) (*http.Response, error) {
-	fmt.Printf("访问接口: [%s] %s\n", method, url)
+	logger.Info.Printf("访问接口: [%s] %s\n", method, url)
 	sign := HupuApp.GetSortParam(params)
 	params["sign"] = sign
 	var req *http.Request
@@ -66,12 +66,12 @@ func (hh *HupuHttp) Request(method string, url string, headers map[string]string
 			q.Add(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
-		fmt.Printf("参数: %s\n", req.URL.RawQuery)
+		logger.Info.Printf("参数: %s\n", req.URL.RawQuery)
 	}
 
 	for k, v := range hh.Headers {
 		req.Header.Set(k, v)
 	}
-	fmt.Printf("headers: %+v\n", req.Header)
+	logger.Info.Printf("headers: %+v\n", req.Header)
 	return hh.Client.Do(req)
 }

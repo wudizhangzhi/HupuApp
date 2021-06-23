@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/fatih/color"
+	"github.com/wudizhangzhi/HupuApp"
 )
 
 type WsMsg struct {
@@ -13,13 +14,13 @@ type WsMsg struct {
 }
 
 type ScoreBoard struct {
-	HomeTid   string `json:"home_tid"`
-	HomeName  string `json:"home_name"`
-	HomeScore string `json:"home_score"`
-	AwayTid   string `json:"away_tid"`
-	AwayName  string `json:"away_name"`
-	AwayScore string `json:"away_score"`
-	Process   string `json:"process"`
+	HomeTid   string      `json:"home_tid"`
+	HomeName  string      `json:"home_name"`
+	HomeScore interface{} `json:"home_score"`
+	AwayTid   string      `json:"away_tid"`
+	AwayName  string      `json:"away_name"`
+	AwayScore interface{} `json:"away_score"`
+	Process   string      `json:"process"`
 	// Status    int    `json:"status"`
 }
 
@@ -29,23 +30,28 @@ func (s ScoreBoard) String() string {
 
 func (s ScoreBoard) ColoredString() string {
 	red := color.New(color.FgRed).SprintFunc()
-	awayscore, _ := strconv.ParseInt(s.AwayScore, 10, 8)
-	homescore, _ := strconv.ParseInt(s.HomeScore, 10, 8)
+	awayscore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(s.AwayScore), 10, 8)
+	homescore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(s.HomeScore), 10, 8)
+	// if awayscore > homescore {
+	// 	return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, red(s.AwayScore), s.HomeScore, s.HomeName, s.Process)
+	// } else {
+	// 	return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, s.AwayScore, red(s.HomeScore), s.HomeName, s.Process)
+	// }
 	if awayscore > homescore {
-		return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, red(s.AwayScore), s.HomeScore, s.HomeName, s.Process)
+		return fmt.Sprintf("%s:%s", red(s.AwayScore), s.HomeScore)
 	} else {
-		return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, s.AwayScore, red(s.HomeScore), s.HomeName, s.Process)
+		return fmt.Sprintf("%s:%s", s.AwayScore, red(s.HomeScore))
 	}
 }
 
 type LiveMsg struct {
-	Room         string `json:"room"`
-	Gid          string `json:"gid"`
-	Status       string `json:"status"`
-	Pid          int    `json:"pid"`
-	RoomLiveType int    `json:"room_live_type"`
-	OnLine       string `json:"online"`
-	Result       Result `json:"result"`
+	Room         string      `json:"room"`
+	Gid          string      `json:"gid"`
+	Status       string      `json:"status"`
+	Pid          interface{} `json:"pid"`
+	RoomLiveType interface{} `json:"room_live_type"`
+	OnLine       string      `json:"online"`
+	Result       Result      `json:"result"`
 }
 
 type Result struct {

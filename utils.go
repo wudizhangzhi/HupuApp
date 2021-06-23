@@ -161,3 +161,17 @@ func GetAndroidId() string {
 	base2 := Str2DEC(result)
 	return strconv.FormatInt(int64(base2), 16)
 }
+
+func InterfaceToStr(i interface{}) string {
+	result := ""
+	switch i.(type) {
+
+	case string:
+		result = fmt.Sprint(i.(string))
+	case int:
+		result = fmt.Sprint(i.(int))
+	case float64:
+		result = fmt.Sprint(i.(float64))
+	}
+	return result
+}
