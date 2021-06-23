@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/eiannone/keyboard"
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
 	"github.com/wudizhangzhi/HupuApp"
@@ -164,7 +165,7 @@ func (c *Client) OnMessage() {
 			c.HandleLiveMsg(msg)
 			if HupuApp.InterfaceToStr(msg.Args[0].RoomLiveType) == "-1" {
 				// 比赛结束
-				fmt.Println("----- 直播结束了, 即将退回菜单 -----")
+				fmt.Println("----- 直播结束了 -----")
 				c.OprCh <- "finish"
 			}
 		}
@@ -221,6 +222,11 @@ OutLoop:
 	c.WsConn.Close()
 }
 
+func (c *Client) WaitClose() {
+	fmt.Println("----- 按任意键退出 -----")
+	keyboard.GetSingleKey()
+}
+
 func (c *Client) Start() {
 	fmt.Println("----- 正在连接直播间 -----")
 	// 初始化
@@ -236,4 +242,5 @@ func (c *Client) Start() {
 
 	go c.OnMessage()
 	c.finalize()
+	c.WaitClose()
 }
