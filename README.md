@@ -30,7 +30,8 @@ window的适配也在努力中...
 * go version go1.16.4 windows/amd64
 
 ## 安装
-在[release](https://github.com/wudizhangzhi/HupuApp/releases)页面中选择符合自己系统版本的下载，然后直接执行
+在[release](https://github.com/wudizhangzhi/HupuApp/releases)页面中选择符合自己系统版本的下载，
+解压缩后进入文件夹直接执行`./hupu`
 
 ## 使用指南
 方向键上下控制选项，回车选择，ctrl+c中途退出。
