@@ -5,7 +5,7 @@ import "github.com/manifoldco/promptui"
 var LabelLive = "比赛直播"
 
 var LiveTemplate = &promptui.SelectTemplates{
-	Label:    "{{ . }}?",
+	Label:    "{{ . }}",
 	Active:   "-> {{ .AwayName }} {{ .AwayScore | red  }}:{{ .HomeScore | red }} {{ .HomeName }} {{ .Process }}",
 	Inactive: "   {{ .AwayName }} {{ .AwayScore | red  }}:{{ .HomeScore | red }} {{ .HomeName }} {{ .Process }}",
 	Selected: "-> {{ .AwayName }} {{ .AwayScore | red  }}:{{ .HomeScore | red }} {{ .HomeName }} {{ .Process }}",
