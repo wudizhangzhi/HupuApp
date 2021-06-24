@@ -38,9 +38,9 @@ func (s ScoreBoard) ColoredString() string {
 	// 	return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, s.AwayScore, red(s.HomeScore), s.HomeName, s.Process)
 	// }
 	if awayscore > homescore {
-		return fmt.Sprintf("%s:%s", red(s.AwayScore), s.HomeScore)
+		return fmt.Sprintf("%s:%d", red(awayscore), homescore)
 	} else {
-		return fmt.Sprintf("%s:%s", s.AwayScore, red(s.HomeScore))
+		return fmt.Sprintf("%d:%s", awayscore, red(homescore))
 	}
 }
 
