@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	jsoniter "github.com/json-iterator/go"
+	"github.com/tidwall/gjson"
+
 	"github.com/wudizhangzhi/HupuApp"
+	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
 	"github.com/wudizhangzhi/HupuApp/gohupu/message"
 )
 
@@ -19,6 +21,7 @@ var (
 func init() {
 	// 初始化数值
 	addresses := GetIpAddress()
+	logger.Info.Printf("获取所有地址: %s\n", addresses)
 	Domain = HupuApp.RandomChoice(addresses)
 }
 
@@ -58,7 +61,8 @@ func GetIpAddress() []string {
 	if err != nil {
 		panic(err)
 	}
-	addressJson := jsoniter.Get(respBody, "result", "redirector").ToString()
+	addressJson := gjson.GetBytes(respBody, "result.redirector").String()
+
 	var address []string
 	json.Unmarshal([]byte(addressJson), &address)
 	return address
@@ -89,64 +93,76 @@ const (
 	CBA GameType = "cba"
 )
 
-// 获取比赛列表
-func APIGetGames(gametype GameType) (*http.Response, error) {
-	params := map[string]string{
-		"night":      "0",
-		"channel":    "myapp",
-		"crt":        fmt.Sprint(HupuApp.GetTimestamp()),
-		"client":     HupuHttpobj.IMEI,
-		"time_zone":  "Asia/Shanghai",
-		"android_id": HupuHttpobj.AndroidId,
-	}
-	return HupuHttpobj.Request("GET", fmt.Sprintf(HupuApp.API_GET_GAMES, gametype), nil, params)
-}
-
-func GetDayGames(gametype GameType) ([]message.DayGame, error) {
-	results := []message.DayGame{}
-	resp, err := APIGetGames(gametype)
-	if err != nil {
-		return results, err
-	}
-	defer resp.Body.Close()
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return results, err
-	}
-	// fmt.Println("response Body : ", string(respBody))
-	msgGame := message.MsgGame{}
-	if err := json.Unmarshal(respBody, &msgGame); err != nil {
-		return results, err
-	}
-	return msgGame.Result.DayGames, nil
-}
-
 // 获取今天的比赛
-func GetGameToday(gametype GameType) ([]message.Game, error) {
-	result := make([]message.Game, 0)
-	dayGames, err := GetDayGames(gametype)
+func GetMatchesToday(gametype GameType) ([]message.Match, error) {
+	result := make([]message.Match, 0)
+	schedule, err := GetScheduleList(gametype)
 	if err != nil {
-		return result, nil
+		return result, err
 	}
 	today := time.Now().Format("20060102")
-	for _, dayGame := range dayGames {
+	for _, dayGame := range schedule.GameList {
 		if dayGame.Day == today {
-			result = append(result, dayGame.Games...)
+			result = append(result, dayGame.MatchList...)
 		}
 	}
 	return result, nil
 }
 
-func GetGameFromDate(gametype GameType, date string) ([]message.Game, error) {
-	result := make([]message.Game, 0)
-	dayGames, err := GetDayGames(gametype)
+func GetMatchesFromDate(gametype GameType, dates ...string) ([]message.Match, error) {
+	matches := make([]message.Match, 0)
+	schedule, err := GetScheduleList(gametype)
 	if err != nil {
-		return result, nil
+		return matches, nil
 	}
-	for _, dayGame := range dayGames {
-		if dayGame.Day == date {
-			result = append(result, dayGame.Games...)
+	var date string
+	if len(dates) == 0 {
+		date = time.Now().Format("20060102")
+	} else {
+		date = dates[0]
+	}
+
+	for _, game := range schedule.GameList {
+		logger.Info.Printf("对比日期: %s - %s", date, game.Day)
+		if game.Day == date {
+			matches = append(matches, game.MatchList...)
+			break
 		}
 	}
-	return result, nil
+	return matches, nil
+}
+
+func APIGetScheduleList(gametype GameType) (*http.Response, error) {
+	params := map[string]string{
+		"competitionTag": string(gametype),
+		"night":          "0",
+		"V":              "7.5.59.01043",
+		"channel":        "hupuupdate",
+		"crt":            fmt.Sprint(HupuApp.GetTimestamp()),
+		"_imei":          HupuHttpobj.IMEI,
+		"time_zone":      "Asia/Shanghai",
+		"android_id":     HupuHttpobj.AndroidId,
+		// "client":     HupuHttpobj.IMEI,
+	}
+	return HupuHttpobj.Request("GET", HupuApp.API_SCHEDULE_LIST, nil, params)
+}
+
+func GetScheduleList(gametype GameType) (message.GameSchedule, error) {
+	gameSchdule := message.GameSchedule{}
+	resp, err := APIGetScheduleList(gametype)
+	if err != nil {
+		return gameSchdule, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return gameSchdule, err
+	}
+
+	byteResult, _ := json.Marshal(gjson.GetBytes(respBody, "result").Value())
+	json.Unmarshal(byteResult, &gameSchdule)
+
+	// logger.Info.Printf("ScheduleList返回: %v", gameSchdule)
+	return gameSchdule, nil
 }

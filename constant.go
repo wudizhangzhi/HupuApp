@@ -3,13 +3,16 @@ package HupuApp
 const (
 	DefaultLiveWebSocketDomain = "61.174.11.224:3081"
 	DefaultTac                 = "tac.csv"
-	API_VERSION                = "7.1.15"
+	API_VERSION                = "7.5.59"
 	HUPU_SALT                  = "HUPU_SALT_AKJfoiwer394Jeiow4u309"
 	// 接口
 	// 直播接口
-	API_STATUS_INIT      = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/status/init"
-	API_GET_GAMES        = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/%s/getGames"
-	API_GET_PLAY_BY_PLAY = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/room/getPlaybyplay"
+	API_STATUS_INIT                  = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/status/init"
+	API_GET_GAMES                    = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/%s/getGames"
+	API_GET_PLAY_BY_PLAY             = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/room/getPlaybyplay"
+	API_SCHEDULE_LIST                = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/basketballapi/scheduleList"
+	API_LIVE_QUERY_LIVE_ACTIVITY_KEY = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/live/queryLiveActivityKe"
+	API_LIVE_QUERY_LIVE_TEXT_LIST    = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/live/queryLiveTextList"
 	// 一些设置
 	LIVE_HEART_BEAT_PERIOD = 10 // 直播心跳间隔时间
 	LOG_FILE               = "hupu.log"

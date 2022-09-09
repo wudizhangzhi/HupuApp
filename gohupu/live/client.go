@@ -62,6 +62,7 @@ func (c *Client) FetchToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	logger.Info.Printf("获取token接口返回: %s", string(respBody))
 	token = strings.Split(string(respBody), ":50:60")[0]
 	return token, nil
 }
@@ -139,7 +140,7 @@ func (c *Client) OnMessage() {
 			// txtMsg, err = o.GzipDecode(message)
 		}
 		// 处理response
-		msgResp, err := loadResponse(txtMsg)
+		// msgResp, err := loadResponse(txtMsg)
 		if len(txtMsg) < 100 {
 			logger.Info.Printf("收到的消息: %s\n", txtMsg)
 		}
@@ -147,28 +148,48 @@ func (c *Client) OnMessage() {
 			c.ErrorCh <- err
 			break
 		}
-
-		switch msg := msgResp.(type) {
-		case *message.MsgOne:
-			c.Send(message.MsgRespMsgOne)
-		case *message.MsgTwo:
-			if c.Connected {
-				c.Send(message.MsgRespMsgTwo)
+		var splited []string = strings.Split(string(txtMsg), ":")
+		switch splited[0] {
+		case "0":
+		case "1":
+			if splited[2] == "/nba_v1" {
+				c.Send(fmt.Sprintf(message.MsgRespMsgNBAStart, c.Game.Gid, c.Pid))
 			} else {
-				c.Connected = true
+				c.Send(splited[2])
+			}
+		case "2":
+			if !c.Connected {
 				c.Send(message.MsgRespMsgTwoConnected)
 			}
-
-		case *message.MsgNBAStart:
+		case "3":
+		case "4":
+		case "5":
 			c.Send(fmt.Sprintf(message.MsgRespMsgNBAStart, c.Game.Gid, c.Pid))
-		case *message.WsMsg: // 如果是直播消息, 处理
-			c.HandleLiveMsg(msg)
-			if HupuApp.InterfaceToStr(msg.Args[0].RoomLiveType) == "-1" {
-				// 比赛结束
-				fmt.Println("----- 直播结束了 -----")
-				c.OprCh <- "finish"
-			}
+		case "6":
+		case "7":
+		default:
+
 		}
+		// switch msg := msgResp.(type) {
+		// case *message.MsgOne:
+		// 	c.Send(message.MsgRespMsgOne)
+		// case *message.MsgTwo:
+		// 	if c.Connected {
+		// 		c.Send(message.MsgRespMsgTwo)
+		// 	} else {
+		// 		c.Connected = true
+		// 		c.Send(message.MsgRespMsgTwoConnected)
+		// 	}
+		// case *message.MsgNBAStart:
+		// 	c.Send(fmt.Sprintf(message.MsgRespMsgNBAStart, c.Game.Gid, c.Pid))
+		// case *message.WsMsg: // 如果是直播消息, 处理
+		// 	c.HandleLiveMsg(msg)
+		// 	if HupuApp.InterfaceToStr(msg.Args[0].RoomLiveType) == "-1" {
+		// 		// 比赛结束
+		// 		fmt.Println("----- 直播结束了 -----")
+		// 		c.OprCh <- "finish"
+		// 	}
+		// }
 
 	}
 }
