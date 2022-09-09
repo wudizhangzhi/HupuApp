@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
+	"github.com/wudizhangzhi/HupuApp/gohupu/live"
 	"github.com/wudizhangzhi/HupuApp/gohupu/menu"
 )
 
@@ -29,19 +30,17 @@ func main() {
 		Size:      len(interfaceItems),
 	}
 
-	m.Start()
-
-	// idx, err := m.Start()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return
-	// }
-	// game := matches[idx]
-	// client := live.Client{
-	// 	Domain: api.Domain,
-	// 	Game:   game,
-	// }
+	idx, err := m.Start()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	match := matches[idx]
+	client := live.Client{
+		Domain: api.Domain,
+		Match:  match,
+	}
 	// // 退出过快可能导致print打印不显示
-	// time.Sleep(1 * time.Second)
-	// client.Start()
+	time.Sleep(1 * time.Second)
+	client.Start()
 }

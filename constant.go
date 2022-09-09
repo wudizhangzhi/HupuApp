@@ -11,8 +11,8 @@ const (
 	API_GET_GAMES                    = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/%s/getGames"
 	API_GET_PLAY_BY_PLAY             = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/room/getPlaybyplay"
 	API_SCHEDULE_LIST                = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/basketballapi/scheduleList"
-	API_LIVE_QUERY_LIVE_ACTIVITY_KEY = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/live/queryLiveActivityKe"
-	API_LIVE_QUERY_LIVE_TEXT_LIST    = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/live/queryLiveTextList"
+	API_LIVE_QUERY_LIVE_ACTIVITY_KEY = "https://live-api.liangle.com/1/" + API_VERSION + "/live/queryLiveActivityKey"
+	API_LIVE_QUERY_LIVE_TEXT_LIST    = "https://live-api.liangle.com/1/" + API_VERSION + "/live/queryLiveTextList"
 	// 一些设置
 	LIVE_HEART_BEAT_PERIOD = 10 // 直播心跳间隔时间
 	LOG_FILE               = "hupu.log"
