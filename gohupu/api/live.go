@@ -151,7 +151,7 @@ func APIQueryLiveTextList(matchId string, liveActivityKeyStr string, commentId s
 	return HupuHttpobj.Request("GET", HupuApp.API_LIVE_QUERY_LIVE_TEXT_LIST, nil, params)
 }
 
-func APIGetScheduleList(gametype GameType) (*http.Response, error) {
+func APIGetScheduleList(gametype GameType, coursors ...string) (*http.Response, error) {
 	params := map[string]string{
 		"competitionTag": fmt.Sprint(gametype),
 		"night":          "0",
@@ -161,6 +161,26 @@ func APIGetScheduleList(gametype GameType) (*http.Response, error) {
 		"_imei":          HupuHttpobj.IMEI,
 		"time_zone":      "Asia/Shanghai",
 		"android_id":     HupuHttpobj.AndroidId,
+		// "client":     HupuHttpobj.IMEI,
+		// TODO 测试
+		"coursor": "20220718",
+	}
+	if len(coursors) > 0 {
+		params["coursor"] = coursors[0]
+	}
+	return HupuHttpobj.Request("GET", HupuApp.API_SCHEDULE_LIST, nil, params)
+}
+
+func APISingleMatch(matchId string) (*http.Response, error) {
+	params := map[string]string{
+		"matchId":    matchId,
+		"night":      "0",
+		"V":          "7.5.59.01043",
+		"channel":    "hupuupdate",
+		"crt":        fmt.Sprint(HupuApp.GetTimestamp()),
+		"_imei":      HupuHttpobj.IMEI,
+		"time_zone":  "Asia/Shanghai",
+		"android_id": HupuHttpobj.AndroidId,
 		// "client":     HupuHttpobj.IMEI,
 	}
 	return HupuHttpobj.Request("GET", HupuApp.API_SCHEDULE_LIST, nil, params)
@@ -186,6 +206,21 @@ func GetMatchesFromDate(gametype GameType, dates ...string) ([]message.Match, er
 			matches = append(matches, game.MatchList...)
 			break
 		}
+	}
+	return matches, nil
+}
+
+func GetAnyMatches(gameType GameType) ([]message.Match, error) {
+	matches := make([]message.Match, 0)
+	schedule, err := GetScheduleList(gameType)
+	if err != nil {
+		return matches, nil
+	}
+	for _, game := range schedule.GameList {
+		if len(matches) > 5 {
+			break
+		}
+		matches = append(matches, game.MatchList...)
 	}
 	return matches, nil
 }

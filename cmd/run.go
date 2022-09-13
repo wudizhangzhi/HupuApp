@@ -10,15 +10,14 @@ import (
 )
 
 func main() {
-	matches, err := api.GetMatchesFromDate(api.NBA)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 	// TODO 测试用, 今日无比赛
-	if len(matches) == 0 {
-		matches, _ = api.GetMatchesFromDate(api.NBA, time.Now().AddDate(0, 0, -110).Format("20060102"))
-	}
+	// matches, _ := api.GetMatchesFromDate(api.CBA, time.Now().AddDate(0, 0, -10).Format("20060102"))
+	matches, _ := api.GetAnyMatches(api.CBA)
+	// matches, err := api.GetMatchesFromDate(api.NBA)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	return
+	// }
 	interfaceItems := make([]interface{}, 0)
 	for _, item := range matches {
 		interfaceItems = append(interfaceItems, item)

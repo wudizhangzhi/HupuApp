@@ -32,11 +32,6 @@ func (s ScoreBoard) ColoredString() string {
 	red := color.New(color.FgRed).SprintFunc()
 	awayscore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(s.AwayScore), 10, 8)
 	homescore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(s.HomeScore), 10, 8)
-	// if awayscore > homescore {
-	// 	return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, red(s.AwayScore), s.HomeScore, s.HomeName, s.Process)
-	// } else {
-	// 	return fmt.Sprintf("%s %s:%s %s  %s", s.AwayName, s.AwayScore, red(s.HomeScore), s.HomeName, s.Process)
-	// }
 	if awayscore > homescore {
 		return fmt.Sprintf("%s:%d", red(awayscore), homescore)
 	} else {

@@ -5,12 +5,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/signal"
+	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
 	"github.com/tidwall/gjson"
+	"github.com/wudizhangzhi/HupuApp"
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
 	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
 	"github.com/wudizhangzhi/HupuApp/gohupu/message"
@@ -22,8 +26,6 @@ type Client struct {
 	Pid             int           // (内部接口获取的参数)
 	liveActivityKey string        // (内部接口获取的参数)
 	Match           message.Match // 比赛(外部接口获取的参数)
-	HomeName        string        // 主队名字
-	AwayName        string        // 客队名字
 	Connected       bool          // ws中是否已连接
 	LastTime        int           // (内部接口获取，用于比对直播数据时间)
 	LastCommentId   string        //
@@ -31,6 +33,18 @@ type Client struct {
 	ErrorCh         chan interface{} // 错误channel
 	OprCh           chan interface{} // 操作通道?
 	InterruptCh     chan os.Signal   // 中断信号
+	IsFinish        bool
+}
+
+func (c Client) ColoredScore() string {
+	red := color.New(color.FgRed).SprintFunc()
+	awayscore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(c.Match.AwayScore), 10, 8)
+	homescore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(c.Match.HomeScore), 10, 8)
+	if awayscore > homescore {
+		return fmt.Sprintf("%s:%d", red(awayscore), homescore)
+	} else {
+		return fmt.Sprintf("%d:%s", awayscore, red(homescore))
+	}
 }
 
 // 获取token
@@ -100,7 +114,15 @@ func (c *Client) HandleLiveMsg(msg message.MatchTextMsg) {
 	// 		}
 	// 	}
 	// }
-	fmt.Fprintf(color.Output, "%s\n", msg.Content)
+	// fmt.Fprintf(color.Output, "%s: %s\n", msg.NickName, msg.Content)
+	fmt.Fprintf(color.Output, "%s %s %s %s| %s: %s\n",
+		c.Match.AwayTeamName,
+		c.ColoredScore(),
+		c.Match.HomeTeamName,
+		c.Match.MatchStatusChinese,
+		msg.NickName,
+		msg.Content,
+	)
 }
 
 func (c *Client) Start() {
@@ -108,12 +130,12 @@ func (c *Client) Start() {
 	// 初始化
 	// c.Pid = 617 // 先默认设定一个数值，之后更新
 	// c.ErrorCh = make(chan interface{}, 1)
-	// c.InterruptCh = make(chan os.Signal, 1)
+	c.InterruptCh = make(chan os.Signal, 1)
 	// c.OprCh = make(chan interface{})
 	// c.Th = time.NewTicker(HupuApp.LIVE_HEART_BEAT_PERIOD * time.Second)
 	// c.Connect()
 
-	// signal.Notify(c.InterruptCh, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	signal.Notify(c.InterruptCh, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	// defer c.WsConn.Close()
 
 	// go c.OnMessage()
@@ -122,15 +144,33 @@ func (c *Client) Start() {
 	// api.QueryLiveTextList()
 	c.init()
 
-	for i := 1; i < 5; i++ {
-		matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, c.LastCommentId)
-		if err != nil {
-			logger.Error.Fatal(err)
-		}
-		for _, msg := range matchTextMsgs {
-			c.HandleLiveMsg(msg)
-			c.LastCommentId = msg.CommentId
+OutLoop:
+	for {
+		select {
+		case <-c.InterruptCh:
+			break OutLoop
+		default:
+			matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, c.LastCommentId)
+			if err != nil {
+				logger.Error.Fatal(err)
+			}
+			for _, msg := range matchTextMsgs {
+				c.HandleLiveMsg(msg)
+				c.LastCommentId = msg.CommentId
+			}
+			time.Sleep(1 * time.Second)
 		}
 	}
+
+	// for i := 1; i < 5; i++ {
+	// 	matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, c.LastCommentId)
+	// 	if err != nil {
+	// 		logger.Error.Fatal(err)
+	// 	}
+	// 	for _, msg := range matchTextMsgs {
+	// 		c.HandleLiveMsg(msg)
+	// 		c.LastCommentId = msg.CommentId
+	// 	}
+	// }
 
 }
