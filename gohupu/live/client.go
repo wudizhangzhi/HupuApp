@@ -1,19 +1,16 @@
 package live
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"os/signal"
-	"strings"
+	"strconv"
 	"syscall"
 	"time"
 
-	"github.com/eiannone/keyboard"
 	"github.com/fatih/color"
-	"github.com/gorilla/websocket"
+	"github.com/tidwall/gjson"
 	"github.com/wudizhangzhi/HupuApp"
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
 	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
@@ -21,226 +18,110 @@ import (
 )
 
 type Client struct {
-	WsConn      *websocket.Conn
-	Domain      string       // (外部接口获取的参数)
-	Pid         int          // (内部接口获取的参数)
-	Game        message.Game // 比赛(外部接口获取的参数)
-	HomeName    string       // 主队名字
-	AwayName    string       // 客队名字
-	Connected   bool         // ws中是否已连接
-	LastTime    int          // (内部接口获取，用于比对直播数据时间)
-	Th          *time.Ticker
-	ErrorCh     chan interface{} // 错误channel
-	OprCh       chan interface{} // 操作通道?
-	InterruptCh chan os.Signal   // 中断信号
+	liveActivityKey string        // (内部接口获取的参数)
+	Match           message.Match // 比赛(外部接口获取的参数)
+	LastCommentId   string        // (内部接口获取，用于比对直播数据最后一次消息的id)
+	Th              *time.Ticker
+	ThQueryMatch    *time.Ticker   // 另起一个ticker 更新比赛状态
+	InterruptCh     chan os.Signal // 中断信号
 }
 
-// 获取token
-func (c *Client) FetchToken() (string, error) {
-	var token string
-	client := &http.Client{}
-	t := time.Now().Unix()
-	url := "http://" + c.Domain + "/socket.io/1/"
-	req, err := http.NewRequest("POST", url, nil)
-	if err != nil {
-		logger.Error.Print(err)
-		return "", err
+func (c Client) ColoredScore() string {
+	red := color.New(color.FgRed).SprintFunc()
+	awayscore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(c.Match.AwayScore), 10, 8)
+	homescore, _ := strconv.ParseInt(HupuApp.InterfaceToStr(c.Match.HomeScore), 10, 8)
+	if awayscore > homescore {
+		return fmt.Sprintf("%s:%d", red(awayscore), homescore)
+	} else {
+		return fmt.Sprintf("%d:%s", awayscore, red(homescore))
 	}
-	q := req.URL.Query()
-	q.Add("client", api.HupuHttpobj.IMEI)
-	q.Add("t", fmt.Sprint(t))
-	q.Add("type", "1")
-	q.Add("background", "false")
-	req.URL.RawQuery = q.Encode()
-	logger.Info.Printf("获取token: %s\n", req.URL.RawQuery)
-	resp, err := client.Do(req)
+}
+
+func (c *Client) init() {
+	// 获取比赛的activity key
+	resp, err := api.APIQueryLiveActivityKey(c.Match.MatchId)
 	if err != nil {
-		return "", err
+		logger.Error.Fatal(err)
 	}
 	defer resp.Body.Close()
+
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		logger.Error.Fatal(err)
 	}
-	token = strings.Split(string(respBody), ":50:60")[0]
-	return token, nil
-}
+	liveActivityKey := gjson.GetBytes(respBody, "result.liveActivityKey").String()
+	c.liveActivityKey = liveActivityKey
 
-func (c *Client) Connect() {
-	token, err := c.FetchToken()
-	if err != nil {
-		panic(err)
-	}
-	url := "ws://" + c.Domain + fmt.Sprintf("/socket.io/1/websocket/%s/?client=%s&t=%d&type=1&background=false", token, api.HupuHttpobj.IMEI, time.Now().Unix())
-	logger.Info.Printf("创建连接: %s\n", url)
-	wsConn, _, err := websocket.DefaultDialer.Dial(url, nil)
-	if err != nil {
-		logger.Error.Fatalf("websocket连接失败: %v\n", err)
-		panic(err)
-	}
-	c.WsConn = wsConn
-}
-
-func (c *Client) Send(msg string) {
-	logger.Info.Printf("发送: %s\n", msg)
-	c.WsConn.WriteMessage(websocket.TextMessage, []byte(msg))
-}
-
-func loadResponse(respMsg []byte) (interface{}, error) {
-	switch string(respMsg) {
-	case "1::":
-		return &message.MsgOne{}, nil
-	case "2::":
-		return &message.MsgTwo{}, nil
-	case "1::/nba_v1":
-		return &message.MsgNBAStart{}, nil
-	default:
-		msg := message.WsMsg{}
-		if len(respMsg) < 11 {
-			logger.Error.Printf("收到的消息长度不足: %s\n", respMsg)
-			return nil, fmt.Errorf("收到的消息长度不足: %s", respMsg)
-		}
-		if err := json.Unmarshal(respMsg[11:], &msg); err != nil {
-			return nil, err
-		}
-		return &msg, nil
-	}
-}
-
-func (c *Client) heartbeat() {
-	logger.Info.Println("心跳~")
-	c.WsConn.WriteMessage(websocket.TextMessage, []byte("2:::"))
-	// c.Send("2:::")
-}
-
-func (c *Client) OnMessage() {
-	logger.Info.Printf("开始监听")
-	for {
-		msgType, p, err := c.WsConn.ReadMessage()
-		if err != nil {
-			if err != nil {
-				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					logger.Error.Printf("error: %v", err)
-					c.OprCh <- "close"
-				}
-				break
-			}
-			logger.Error.Printf("接收数据报错, 退出: %s\n", err)
-			if c.ErrorCh != nil {
-				c.ErrorCh <- err
-			}
-			break
-		}
-		txtMsg := p
-		switch msgType {
-		case websocket.TextMessage:
-			//
-		case websocket.BinaryMessage:
-			// txtMsg, err = o.GzipDecode(message)
-		}
-		// 处理response
-		msgResp, err := loadResponse(txtMsg)
-		if len(txtMsg) < 100 {
-			logger.Info.Printf("收到的消息: %s\n", txtMsg)
-		}
-		if err != nil {
-			c.ErrorCh <- err
-			break
-		}
-
-		switch msg := msgResp.(type) {
-		case *message.MsgOne:
-			c.Send(message.MsgRespMsgOne)
-		case *message.MsgTwo:
-			if c.Connected {
-				c.Send(message.MsgRespMsgTwo)
-			} else {
-				c.Connected = true
-				c.Send(message.MsgRespMsgTwoConnected)
-			}
-
-		case *message.MsgNBAStart:
-			c.Send(fmt.Sprintf(message.MsgRespMsgNBAStart, c.Game.Gid, c.Pid))
-		case *message.WsMsg: // 如果是直播消息, 处理
-			c.HandleLiveMsg(msg)
-			if HupuApp.InterfaceToStr(msg.Args[0].RoomLiveType) == "-1" {
-				// 比赛结束
-				fmt.Println("----- 直播结束了 -----")
-				c.OprCh <- "finish"
-			}
-		}
-
-	}
+	logger.Info.Printf("liveActivityKey: %s\n", liveActivityKey)
 }
 
 // 格式化直播消息
-func (c *Client) HandleLiveMsg(msg *message.WsMsg) {
-	if len(msg.Args) > 0 && len(msg.Args[0].Result.Data) > 0 {
-		s := msg.Args[0].Result.Score
-		if s.AwayName != "" {
-			c.AwayName = s.AwayName
-		}
-		if s.HomeName != "" {
-			c.HomeName = s.HomeName
-		}
-		score := s.ColoredString()
-		for _, m := range msg.Args[0].Result.Data[0].EventMsgs {
-			if c.LastTime == 0 || c.LastTime < m.Content.T {
-				fmt.Fprintf(color.Output, "%s %s %s %s| %s\n", c.AwayName, score, c.HomeName, s.Process, m.String())
-				c.LastTime = m.Content.T
-			}
+func (c *Client) PrintLiveMsg(msg message.MatchTextMsg) {
+	fmt.Fprintf(color.Output, "%s %s %s %s| %s: %s\n",
+		c.Match.AwayTeamName,
+		c.ColoredScore(),
+		c.Match.HomeTeamName,
+		c.Match.MatchStatusChinese,
+		msg.NickName,
+		msg.Content,
+	)
+}
+
+func (c *Client) OnMatchUpdate() {
+	match, err := api.GetSingleMatch(c.Match.MatchId)
+	if err != nil {
+		logger.Error.Fatal(err)
+	}
+	if match.MatchStatus == "COMPLETED" {
+		c.End()
+	} else {
+		c.Match = match
+	}
+}
+
+func (c *Client) OnLiveMessage() {
+	matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, c.LastCommentId)
+	if err != nil {
+		logger.Error.Fatal(err)
+	}
+	// 确认比赛状态
+	if len(matchTextMsgs) == 0 {
+		c.OnMatchUpdate()
+	} else {
+		for _, msg := range matchTextMsgs {
+			c.PrintLiveMsg(msg)
+			c.LastCommentId = msg.CommentId
 		}
 	}
 }
 
-func (c *Client) finalize() {
-OutLoop:
-	for {
-		select {
-		case <-c.InterruptCh:
-			// 中断
-			break OutLoop
-		case err := <-c.ErrorCh:
-			// 错误
-			logger.Error.Printf("报错！： %s\n", err)
-			break OutLoop
-		case op := <-c.OprCh:
-			// 输入
-			switch op {
-			case "finish":
-				break OutLoop
-			case "close":
-				break OutLoop
-			}
-		case <-c.Th.C: // 心跳
-			c.heartbeat()
-		}
-	}
-	close(c.ErrorCh)
-	close(c.InterruptCh)
-	close(c.OprCh)
-	c.WsConn.Close()
-}
-
-func (c *Client) WaitClose() {
-	fmt.Println("----- 按任意键退出 -----")
-	keyboard.GetSingleKey()
+func (c *Client) End() {
+	logger.Info.Println("比赛结束")
+	fmt.Println("----- 直播结束了 -----")
+	c.InterruptCh <- syscall.SIGQUIT
 }
 
 func (c *Client) Start() {
 	fmt.Println("----- 正在连接直播间 -----")
 	// 初始化
-	c.Pid = 617 // 先默认设定一个数值，之后更新
-	c.ErrorCh = make(chan interface{}, 1)
 	c.InterruptCh = make(chan os.Signal, 1)
-	c.OprCh = make(chan interface{})
 	c.Th = time.NewTicker(HupuApp.LIVE_HEART_BEAT_PERIOD * time.Second)
-	c.Connect()
+	c.ThQueryMatch = time.NewTicker(HupuApp.LIVE_HEART_BEAT_PERIOD * 2 * time.Second)
 
 	signal.Notify(c.InterruptCh, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	defer c.WsConn.Close()
+	c.init()
 
-	go c.OnMessage()
-	c.finalize()
-	c.WaitClose()
+OutLoop:
+	for {
+		select {
+		case <-c.InterruptCh:
+			break OutLoop
+		case <-c.Th.C:
+			c.OnLiveMessage()
+		case <-c.ThQueryMatch.C:
+			c.OnMatchUpdate()
+		}
+	}
+
+	close(c.InterruptCh)
 }

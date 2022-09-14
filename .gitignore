@@ -105,3 +105,5 @@ ENV/
 *.pcap
 *.png
 vendor/
+tmp/
+*.ipynb

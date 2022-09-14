@@ -10,17 +10,14 @@ import (
 )
 
 func main() {
-	games, err := api.GetGameToday(api.NBA)
-	if err != nil {
-		log.Fatal(err)
-		return
+
+	matches, _ := api.GetMatchesFromDate(api.NBA)
+	// matches, _ := api.GetMatchesFromDate(api.NBA, time.Now().AddDate(0, 0, -10).Format("20060102"))
+	if len(matches) == 0 {
+		matches, _ = api.GetAnyMatches(api.NBA, 10, false)
 	}
-	// TODO 测试用, 今日无比赛
-	// if len(games) == 0 {
-	// 	games, _ = api.GetGameFromDate(api.NBA, time.Now().AddDate(0, 0, -1).Format("20060102"))
-	// }
 	interfaceItems := make([]interface{}, 0)
-	for _, item := range games {
+	for _, item := range matches {
 		interfaceItems = append(interfaceItems, item)
 	}
 	m := menu.Menu{
@@ -29,17 +26,17 @@ func main() {
 		Templates: menu.LiveTemplate,
 		Size:      len(interfaceItems),
 	}
+
 	idx, err := m.Start()
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	game := games[idx]
+	match := matches[idx]
 	client := live.Client{
-		Domain: api.Domain,
-		Game:   game,
+		Match: match,
 	}
-	// 退出过快可能导致print打印不显示
+	// // 退出过快可能导致print打印不显示
 	time.Sleep(1 * time.Second)
 	client.Start()
 }
