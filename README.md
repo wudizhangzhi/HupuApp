@@ -3,9 +3,9 @@
 
 灵感来自另一位[JR](https://github.com/chenjiandongx/HupuLive), 本来想fork他的工程继续改的,但是发现自己都没用到他的代码。所以就自己新建一个项目了.
 
-目前大部分功能支持python3.x， python2.x, 部分功能python2.x的适配还在加油中...
+~~目前大部分功能支持python3.x， python2.x, 部分功能python2.x的适配还在加油中...~~
 
-window的适配也在努力中...
+~~window的适配也在努力中...~~
 
 # go 版本的架构
 
@@ -15,7 +15,7 @@ window的适配也在努力中...
         - live.go 直播接口
         - base.go 接口基础
     - message
-        - ws.go   websocket消息
+        - ~~ws.go   websocket消息~~
         - http.go http消息
     - live
         - client.go 直播客户端
@@ -59,6 +59,10 @@ window的适配也在努力中...
 
 ![hupu_news](images/hupu_news.gif)
 
+
+## Hupu Api 
+
+[Document](https://wudizhangzhi.github.io/%E7%88%AC%E8%99%AB/hupu-go-2-0-http-api.html)
 
 ## To-do list
 * [ ] go版本其他功能(新闻，数据等)

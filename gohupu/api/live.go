@@ -23,20 +23,9 @@ const (
 )
 
 func init() {
-	// 初始化数值
+
 }
 
-// url='https://games.mobileapi.hupu.com/1/{}/status/init'.format(self.api_version),
-//             params={
-//                 'dv': '5.7.79',
-//                 'crt': int(time.time() * 1000),
-//                 'tag': 'nba',  # 默认nba
-//                 'night': 0,
-//                 'channel': 'myapp',
-//                 'client': self.client,
-//                 'time_zone': 'Asia/Shanghai',
-//                 'android_id': self.android_id,
-//             },
 func APIStatusInit() (*http.Response, error) {
 	params := map[string]string{
 		"div":        "5.7.79",
@@ -97,19 +86,6 @@ func APIQueryLiveActivityKey(matchId string) (*http.Response, error) {
 		"_imei":           HupuHttpobj.IMEI,
 		"time_zone":       "Asia/Shanghai",
 		"android_id":      HupuHttpobj.AndroidId,
-		// competitionType	basketball
-		// matchId	980817952171360256
-		// clientId	133092838
-		// deviceId	Btv88Xr1R0lJNZTOalfXGk6/BR3oYpZ71Gu/4xLaRgU8PNeg+GmrInk2BSXy1H9mCGcIHFr5FQb9eenF9Rh5VcQ==
-		// _ssid	IktLUHZteEJwMHEi
-		// _imei	868364056062517
-		// time_zone	Asia/Shanghai
-		// client	69bf46d0f4e96e84
-		// night	0
-		// crt	1662706885934
-		// channel	hupuupdate
-		// android_id	69bf46d0f4e96e84
-		// sign	25af1c868310a9ecec0645e6b141eabc
 	}
 	return HupuHttpobj.Request("GET", HupuApp.API_LIVE_QUERY_LIVE_ACTIVITY_KEY, nil, params)
 }
@@ -125,19 +101,6 @@ func APIQueryLiveTextList(matchId string, liveActivityKeyStr string, commentId s
 		"_imei":              HupuHttpobj.IMEI,
 		"time_zone":          "Asia/Shanghai",
 		"android_id":         HupuHttpobj.AndroidId,
-		// matchId	980817952171360256
-		// liveActivityKeyStr	32476308:10922:261542
-		// clientId	133092838
-		// deviceId	Btv88Xr1R0lJNZTOalfXGk6/BR3oYpZ71Gu/4xLaRgU8PNeg+GmrInk2BSXy1H9mCGcIHFr5FQb9eenF9Rh5VcQ==
-		// _ssid	IktLUHZteEJwMHEi
-		// _imei	868364056062517
-		// time_zone	Asia/Shanghai
-		// client	69bf46d0f4e96e84
-		// night	0
-		// crt	1662706885934
-		// channel	hupuupdate
-		// android_id	69bf46d0f4e96e84
-		// sign	737852131bf836fd2ff61780507103af
 	}
 	if commentId != "" {
 		params["commentId"] = commentId
@@ -155,9 +118,6 @@ func APIGetScheduleList(gametype GameType, coursors ...string) (*http.Response, 
 		"_imei":          HupuHttpobj.IMEI,
 		"time_zone":      "Asia/Shanghai",
 		"android_id":     HupuHttpobj.AndroidId,
-		// "client":     HupuHttpobj.IMEI,
-		// TODO 测试
-		"coursor": "20220718",
 	}
 	if len(coursors) > 0 {
 		params["coursor"] = coursors[0]
@@ -175,7 +135,6 @@ func APISingleMatch(matchId string) (*http.Response, error) {
 		"_imei":      HupuHttpobj.IMEI,
 		"time_zone":  "Asia/Shanghai",
 		"android_id": HupuHttpobj.AndroidId,
-		// "client":     HupuHttpobj.IMEI,
 	}
 	return HupuHttpobj.Request("GET", HupuApp.API_SINGLE_MATCH, nil, params)
 }
@@ -234,10 +193,7 @@ func GetAnyMatches(gameType GameType, count int, reverse bool) ([]message.Match,
 	for _, game := range schedule.GameList {
 		t, _ := time.Parse("20060102", game.Day)
 		if t.Unix() <= today.Unix() {
-			for _, match := range game.MatchList {
-
-				matches = append(matches, match)
-			}
+			matches = append(matches, game.MatchList...)
 		}
 	}
 	sort.Slice(matches, func(i, j int) bool {
