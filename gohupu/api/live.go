@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/tidwall/gjson"
@@ -12,10 +13,6 @@ import (
 	"github.com/wudizhangzhi/HupuApp"
 	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
 	"github.com/wudizhangzhi/HupuApp/gohupu/message"
-)
-
-var (
-	Domain string
 )
 
 type GameType string
@@ -27,9 +24,6 @@ const (
 
 func init() {
 	// 初始化数值
-	addresses := GetIpAddress()
-	logger.Info.Printf("获取所有地址: %s\n", addresses)
-	Domain = HupuApp.RandomChoice(addresses)
 }
 
 // url='https://games.mobileapi.hupu.com/1/{}/status/init'.format(self.api_version),
@@ -183,7 +177,27 @@ func APISingleMatch(matchId string) (*http.Response, error) {
 		"android_id": HupuHttpobj.AndroidId,
 		// "client":     HupuHttpobj.IMEI,
 	}
-	return HupuHttpobj.Request("GET", HupuApp.API_SCHEDULE_LIST, nil, params)
+	return HupuHttpobj.Request("GET", HupuApp.API_SINGLE_MATCH, nil, params)
+}
+
+func GetSingleMatch(matchId string) (message.Match, error) {
+	match := message.Match{}
+
+	resp, err := APISingleMatch(matchId)
+	if err != nil {
+		return match, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return match, err
+	}
+	result := gjson.GetBytes(respBody, "result").Value()
+	byteResult, _ := json.Marshal(result)
+	json.Unmarshal(byteResult, &match)
+	logger.Info.Printf("比赛状态: %+v", result)
+	return match, nil
 }
 
 // 获取比赛
@@ -210,17 +224,31 @@ func GetMatchesFromDate(gametype GameType, dates ...string) ([]message.Match, er
 	return matches, nil
 }
 
-func GetAnyMatches(gameType GameType) ([]message.Match, error) {
+func GetAnyMatches(gameType GameType, count int, reverse bool) ([]message.Match, error) {
+	today := time.Now()
 	matches := make([]message.Match, 0)
 	schedule, err := GetScheduleList(gameType)
 	if err != nil {
 		return matches, nil
 	}
 	for _, game := range schedule.GameList {
-		if len(matches) > 5 {
-			break
+		t, _ := time.Parse("20060102", game.Day)
+		if t.Unix() <= today.Unix() {
+			for _, match := range game.MatchList {
+
+				matches = append(matches, match)
+			}
 		}
-		matches = append(matches, game.MatchList...)
+	}
+	sort.Slice(matches, func(i, j int) bool {
+		if reverse {
+			return matches[i].ChinaStartTime < matches[j].ChinaStartTime
+		} else {
+			return matches[i].ChinaStartTime > matches[j].ChinaStartTime
+		}
+	})
+	if count < len(matches)-1 {
+		matches = matches[:count]
 	}
 	return matches, nil
 }
@@ -241,7 +269,12 @@ func GetScheduleList(gametype GameType) (message.GameSchedule, error) {
 	byteResult, _ := json.Marshal(gjson.GetBytes(respBody, "result").Value())
 	json.Unmarshal(byteResult, &gameSchdule)
 
-	// logger.Info.Printf("ScheduleList返回: %v", gameSchdule)
+	// DEBUG
+	total := 0
+	for _, game := range gameSchdule.GameList {
+		total += len(game.MatchList)
+	}
+	logger.Info.Printf("ScheduleList返回: %d 天 %d 场比赛", len(gameSchdule.GameList), total)
 	return gameSchdule, nil
 }
 

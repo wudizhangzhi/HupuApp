@@ -10,14 +10,12 @@ import (
 )
 
 func main() {
-	// TODO 测试用, 今日无比赛
-	// matches, _ := api.GetMatchesFromDate(api.CBA, time.Now().AddDate(0, 0, -10).Format("20060102"))
-	matches, _ := api.GetAnyMatches(api.CBA)
-	// matches, err := api.GetMatchesFromDate(api.NBA)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return
-	// }
+
+	matches, _ := api.GetMatchesFromDate(api.NBA)
+	// matches, _ := api.GetMatchesFromDate(api.NBA, time.Now().AddDate(0, 0, -10).Format("20060102"))
+	if len(matches) == 0 {
+		matches, _ = api.GetAnyMatches(api.NBA, 10, false)
+	}
 	interfaceItems := make([]interface{}, 0)
 	for _, item := range matches {
 		interfaceItems = append(interfaceItems, item)
@@ -36,8 +34,7 @@ func main() {
 	}
 	match := matches[idx]
 	client := live.Client{
-		Domain: api.Domain,
-		Match:  match,
+		Match: match,
 	}
 	// // 退出过快可能导致print打印不显示
 	time.Sleep(1 * time.Second)

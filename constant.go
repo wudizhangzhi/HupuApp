@@ -1,20 +1,21 @@
 package HupuApp
 
 const (
-	DefaultLiveWebSocketDomain = "61.174.11.224:3081"
-	DefaultTac                 = "tac.csv"
-	API_VERSION                = "7.5.59"
-	HUPU_SALT                  = "HUPU_SALT_AKJfoiwer394Jeiow4u309"
+	DefaultTac  = "tac.csv"
+	API_VERSION = "7.5.59"
+	HUPU_SALT   = "HUPU_SALT_AKJfoiwer394Jeiow4u309"
 	// 接口
+	// 旧接口
+	API_STATUS_INIT      = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/status/init"
+	API_GET_GAMES        = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/%s/getGames"
+	API_GET_PLAY_BY_PLAY = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/room/getPlaybyplay"
 	// 直播接口
-	API_STATUS_INIT                  = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/status/init"
-	API_GET_GAMES                    = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/%s/getGames"
-	API_GET_PLAY_BY_PLAY             = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/room/getPlaybyplay"
 	API_SCHEDULE_LIST                = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/basketballapi/scheduleList"
+	API_SINGLE_MATCH                 = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/basketballapi/singleMatch"
 	API_LIVE_QUERY_LIVE_ACTIVITY_KEY = "https://live-api.liangle.com/1/" + API_VERSION + "/live/queryLiveActivityKey"
 	API_LIVE_QUERY_LIVE_TEXT_LIST    = "https://live-api.liangle.com/1/" + API_VERSION + "/live/queryLiveTextList"
 	// 一些设置
-	LIVE_HEART_BEAT_PERIOD = 10 // 直播心跳间隔时间
+	LIVE_HEART_BEAT_PERIOD = 5 // 直播心跳间隔时间
 	LOG_FILE               = "hupu.log"
 )
 

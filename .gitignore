@@ -106,3 +106,4 @@ ENV/
 *.png
 vendor/
 tmp/
+*.ipynb
