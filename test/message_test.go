@@ -42,7 +42,7 @@ func TestMessageGameExtract(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	var msg message.MsgGame
+	var msg message.MatchTextMsg
 	err = json.Unmarshal(data, &msg)
 	if err != nil {
 		t.Error(err)
@@ -56,4 +56,5 @@ func TestMessageGameExtract(t *testing.T) {
 		t.Error("解析Games错误")
 		return
 	}
+
 }

@@ -254,5 +254,11 @@ func QueryLiveTextList(matchId string, liveActivityKeyStr string, commentId stri
 		matchTextMsgs = append(matchTextMsgs, matchTextMsg)
 		logger.Info.Printf("比赛消息: %v", msg.Value())
 	}
+	// sort
+	sort.Slice(matchTextMsgs, func(i, j int) bool {
+		ti, _ := HupuApp.GetTimeFromString(matchTextMsgs[i].Time)
+		tj, _ := HupuApp.GetTimeFromString(matchTextMsgs[j].Time)
+		return ti.Before((tj))
+	})
 	return matchTextMsgs, nil
 }

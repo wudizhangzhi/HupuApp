@@ -21,6 +21,7 @@ type Client struct {
 	liveActivityKey string        // (内部接口获取的参数)
 	Match           message.Match // 比赛(外部接口获取的参数)
 	LastCommentId   string        // (内部接口获取，用于比对直播数据最后一次消息的id)
+	LastCommentTime string
 	Th              *time.Ticker
 	ThQueryMatch    *time.Ticker   // 另起一个ticker 更新比赛状态
 	InterruptCh     chan os.Signal // 中断信号
@@ -79,6 +80,19 @@ func (c *Client) OnMatchUpdate() {
 	}
 }
 
+func (c *Client) isNewComment(msg message.MatchTextMsg) bool {
+	// logger.Info.Printf("对比comment: LastCommentTime:%v LastCommentId:%v msg:%+v", c.LastCommentTime, c.LastCommentId, msg)
+	if c.LastCommentTime == "" {
+		return true
+	}
+	t, _ := HupuApp.GetTimeFromString(msg.Time)
+	t_last, _ := HupuApp.GetTimeFromString(c.LastCommentTime)
+	if t.After(t_last) {
+		return true
+	}
+	return false
+}
+
 func (c *Client) OnLiveMessage() {
 	matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, c.LastCommentId)
 	if err != nil {
@@ -89,8 +103,11 @@ func (c *Client) OnLiveMessage() {
 		c.OnMatchUpdate()
 	} else {
 		for _, msg := range matchTextMsgs {
-			c.PrintLiveMsg(msg)
-			c.LastCommentId = msg.CommentId
+			if c.isNewComment(msg) {
+				c.PrintLiveMsg(msg)
+				c.LastCommentId = msg.CommentId
+				c.LastCommentTime = msg.Time
+			}
 		}
 	}
 }

@@ -175,3 +175,11 @@ func InterfaceToStr(i interface{}) string {
 	}
 	return result
 }
+
+func GetTimeFromString(ds string) (time.Time, error) {
+	t, err := time.Parse("2006-01-02 15:04:05", ds)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}

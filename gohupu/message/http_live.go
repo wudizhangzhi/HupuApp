@@ -23,12 +23,13 @@ package message
 // }
 
 type MatchTextMsg struct {
-	CommentId string `json:"commentId"`
-	NickName  string `json:"nickName"`
-	Time      string `json:"time"`
-	Content   string `json:"content"`
-	Style     string `json:"style"`
-	Color     string `json:"color"`
+	CommentId         string `json:"commentId"`
+	PreviousCommentId string `json:"previousCommentId"`
+	NickName          string `json:"nickName"`
+	Time              string `json:"time"`
+	Content           string `json:"content"`
+	Style             string `json:"style"`
+	Color             string `json:"color"`
 }
 
 // 比赛

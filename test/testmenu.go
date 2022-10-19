@@ -1,43 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/manifoldco/promptui"
-	"github.com/wudizhangzhi/HupuApp/gohupu/menu"
-	"github.com/wudizhangzhi/HupuApp/gohupu/message"
+	"github.com/tidwall/gjson"
 )
-
-func main() {
-	items := []message.Game{
-		message.Game{
-			HomeName:  "湖人",
-			AwayName:  "篮网",
-			HomeScore: "100",
-			AwayScore: "105",
-			Process:   "已结束",
-		},
-		message.Game{
-			HomeName:  "76人",
-			AwayName:  "老鹰",
-			HomeScore: "55",
-			AwayScore: "80",
-			Process:   "已结束",
-		},
-	}
-	interfaceItems := make([]interface{}, 0)
-	for _, item := range items {
-		interfaceItems = append(interfaceItems, item)
-	}
-	m := menu.Menu{
-		Label:     menu.LabelLive,
-		Items:     interfaceItems,
-		Size:      len(interfaceItems),
-		Templates: menu.LiveTemplate,
-	}
-	m.Start()
-}
 
 func test() {
 	type pepper struct {
@@ -94,4 +65,32 @@ func test() {
 	}
 
 	fmt.Printf("You choose number %d: %s\n", i+1, peppers[i].Name)
+}
+
+type MatchTextMsg struct {
+	CommentId         string `json:"commentId"`
+	PreviousCommentId string `json:"previousCommentId"`
+	NickName          string `json:"nickName"`
+	Time              string `json:"time"`
+	Content           string `json:"content"`
+	Style             string `json:"style"`
+	Color             string `json:"color"`
+}
+
+func main() {
+	matchTextMsgs := []MatchTextMsg{}
+	data, err := ioutil.ReadFile("messagegame.txt")
+	if err != nil {
+		panic(err)
+	}
+	for _, msg := range gjson.GetBytes(data, "result").Array() {
+		matchTextMsg := MatchTextMsg{}
+		// fmt.Printf("%+v\n", msg.Value())
+		byteResult, _ := json.Marshal(msg.Value())
+		json.Unmarshal(byteResult, &matchTextMsg)
+		matchTextMsgs = append(matchTextMsgs, matchTextMsg)
+		// logger.Info.Printf("比赛消息: %v", msg.Value())
+		fmt.Printf("%+v\n", matchTextMsg)
+		break
+	}
 }
