@@ -89,12 +89,16 @@ func (c *Client) isNewComment(msg message.MatchTextMsg) bool {
 	t_last, _ := HupuApp.GetTimeFromString(c.LastCommentTime)
 	if t.After(t_last) {
 		return true
+	} else if t.Equal(t_last) {
+		if msg.PreviousCommentId == c.LastCommentId {
+			return true
+		}
 	}
 	return false
 }
 
 func (c *Client) OnLiveMessage() {
-	matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, c.LastCommentId)
+	matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, "")
 	if err != nil {
 		logger.Error.Fatal(err)
 	}

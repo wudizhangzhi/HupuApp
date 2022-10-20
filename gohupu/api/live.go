@@ -251,8 +251,12 @@ func QueryLiveTextList(matchId string, liveActivityKeyStr string, commentId stri
 		matchTextMsg := message.MatchTextMsg{}
 		byteResult, _ := json.Marshal(msg.Value())
 		json.Unmarshal(byteResult, &matchTextMsg)
+		// 特殊处理, 似乎一会儿是int，一会儿是string
+		matchTextMsg.CommentId = msg.Get("commentId").String()
+		matchTextMsg.PreviousCommentId = msg.Get("previousCommentId").String()
 		matchTextMsgs = append(matchTextMsgs, matchTextMsg)
 		logger.Info.Printf("比赛消息: %v", msg.Value())
+		// logger.Info.Printf("比赛消息装载后: %v", matchTextMsg)
 	}
 	// sort
 	sort.Slice(matchTextMsgs, func(i, j int) bool {
