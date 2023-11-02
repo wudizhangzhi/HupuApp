@@ -10,6 +10,7 @@ import (
 
 var (
 	Info  *log.Logger
+	Debug *log.Logger
 	Error *log.Logger
 )
 
@@ -22,4 +23,5 @@ func init() {
 	//自定义日志格式
 	Info = log.New(io.MultiWriter(file), "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(io.MultiWriter(file), "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	Debug = log.New(io.MultiWriter(file), "Debug: ", log.Ldate|log.Ltime|log.Lshortfile)
 }

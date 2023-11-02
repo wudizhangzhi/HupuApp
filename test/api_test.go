@@ -7,23 +7,12 @@ import (
 	"testing"
 
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
+	"github.com/wudizhangzhi/HupuApp/gohupu/api_utils"
 	"github.com/wudizhangzhi/HupuApp/gohupu/message"
 )
 
 func TestGetIpAddress(t *testing.T) {
-	// resp, err := api.StatusInit()
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-	// defer resp.Body.Close()
-	// respBody, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-	// fmt.Println("response Status : ", resp.Status)
-	// fmt.Println("response Headers : ", resp.Header)
-	// fmt.Println("response Body : ", string(respBody))
-	address := api.GetIpAddress()
+	address := api_utils.GetIpAddress()
 	fmt.Printf("IP Address: %+v \n", address)
 }
 

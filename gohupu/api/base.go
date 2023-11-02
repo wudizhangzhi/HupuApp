@@ -5,18 +5,15 @@ import (
 	"net/http"
 	net_url "net/url"
 	"strings"
-	"time"
 
 	"github.com/wudizhangzhi/HupuApp"
 	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
 )
 
-var HupuHttpobj HupuHttp
+var HttpSession Session
 
-type HupuHttp struct {
-	Client *http.Client
-	// Method  string
-	// Params  map[string]string
+type Session struct {
+	Client    *http.Client
 	Headers   map[string]string
 	IMEI      string
 	AndroidId string // 也是clientid
@@ -24,9 +21,13 @@ type HupuHttp struct {
 
 func init() {
 	// 初始化虎扑专用http连接
-	rand.Seed(time.Now().Unix())
+	HttpSession = *NewSession()
+	logger.Info.Printf("初始化: %+v\n", HttpSession)
+}
+
+func NewSession() *Session {
 	agent := HupuApp.ANDROID_USER_AGENT[rand.Intn(len(HupuApp.ANDROID_USER_AGENT))]
-	HupuHttpobj = HupuHttp{
+	return &Session{
 		Client: &http.Client{},
 		Headers: map[string]string{
 			"User-Agent": agent + " kanqiu/" + HupuApp.API_VERSION + ".13305/7214 isp/-1 network/-1",
@@ -34,10 +35,9 @@ func init() {
 		IMEI:      HupuApp.GetRandomImei(0, ""),
 		AndroidId: HupuApp.GetAndroidId(),
 	}
-	logger.Info.Printf("初始化: %+v\n", HupuHttpobj)
 }
 
-func (hh *HupuHttp) Request(method string, url string, headers map[string]string, params map[string]string) (*http.Response, error) {
+func (s *Session) Request(method string, url string, headers map[string]string, params map[string]string) (*http.Response, error) {
 	logger.Info.Printf("访问接口: [%s] %s\n", method, url)
 	sign := HupuApp.GetSortParam(params)
 	params["sign"] = sign
@@ -45,7 +45,6 @@ func (hh *HupuHttp) Request(method string, url string, headers map[string]string
 	var err error
 	switch method {
 	case "POST":
-		// data := make(map[string][]string)
 		data := net_url.Values{}
 		for k, v := range params {
 			data[k] = []string{v}
@@ -69,9 +68,9 @@ func (hh *HupuHttp) Request(method string, url string, headers map[string]string
 		logger.Info.Printf("参数: %s\n", req.URL.RawQuery)
 	}
 
-	for k, v := range hh.Headers {
+	for k, v := range s.Headers {
 		req.Header.Set(k, v)
 	}
 	logger.Info.Printf("headers: %+v\n", req.Header)
-	return hh.Client.Do(req)
+	return s.Client.Do(req)
 }

@@ -5,7 +5,6 @@ const (
 	API_VERSION = "7.5.59"
 	HUPU_SALT   = "HUPU_SALT_AKJfoiwer394Jeiow4u309"
 	// 接口
-	// 旧接口
 	API_STATUS_INIT      = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/status/init"
 	API_GET_GAMES        = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/%s/getGames"
 	API_GET_PLAY_BY_PLAY = "https://games.mobileapi.hupu.com/1/" + API_VERSION + "/room/getPlaybyplay"
