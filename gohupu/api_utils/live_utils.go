@@ -2,7 +2,6 @@ package api_utils
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"sort"
 	"time"
 
@@ -20,12 +19,7 @@ func GetIpAddress() []string {
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	addressJson := gjson.GetBytes(respBody, "result.redirector").String()
+	addressJson := gjson.GetBytes(resp.Body(), "result.redirector").String()
 
 	var address []string
 	json.Unmarshal([]byte(addressJson), &address)
@@ -40,13 +34,7 @@ func GetLiveActivityKey(matchId string) (string, error) {
 	if err != nil {
 		return liveActivityKey, err
 	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return liveActivityKey, err
-	}
-	liveActivityKey = gjson.GetBytes(respBody, "result.liveActivityKey").String()
+	liveActivityKey = gjson.GetBytes(resp.Body(), "result.liveActivityKey").String()
 	return liveActivityKey, nil
 }
 
@@ -58,13 +46,7 @@ func GetSingleMatch(matchId string) (message.Match, error) {
 	if err != nil {
 		return match, err
 	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return match, err
-	}
-	result := gjson.GetBytes(respBody, "result").Value()
+	result := gjson.GetBytes(resp.Body(), "result").Value()
 	byteResult, _ := json.Marshal(result)
 	json.Unmarshal(byteResult, &match)
 	logger.Info.Printf("比赛状态: %+v", result)
@@ -86,7 +68,7 @@ func GetMatchesFromDate(gametype api.GameType, dates ...string) ([]message.Match
 	}
 
 	for _, game := range schedule.GameList {
-		logger.Info.Printf("对比日期: %s - %s", date, game.Day)
+		logger.Debug.Printf("对比日期: %s - %s", date, game.Day)
 		if game.Day == date {
 			matches = append(matches, game.MatchList...)
 			break
@@ -129,14 +111,8 @@ func GetScheduleList(gametype api.GameType) (message.GameSchedule, error) {
 	if err != nil {
 		return gameSchdule, err
 	}
-	defer resp.Body.Close()
 
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return gameSchdule, err
-	}
-
-	byteResult, _ := json.Marshal(gjson.GetBytes(respBody, "result").Value())
+	byteResult, _ := json.Marshal(gjson.GetBytes(resp.Body(), "result").Value())
 	json.Unmarshal(byteResult, &gameSchdule)
 
 	total := 0
@@ -154,13 +130,7 @@ func GetLiveMsgList(matchId string, liveActivityKeyStr string, commentId string)
 	if err != nil {
 		return liveMsgs, err
 	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return liveMsgs, err
-	}
-	for _, msg := range gjson.GetBytes(respBody, "result").Array() {
+	for _, msg := range gjson.GetBytes(resp.Body(), "result").Array() {
 		liveMsg := message.LiveMsg{}
 		byteResult, _ := json.Marshal(msg.Value())
 		json.Unmarshal(byteResult, &liveMsg)

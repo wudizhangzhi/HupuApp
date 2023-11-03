@@ -36,6 +36,12 @@ func (c Client) ColoredScore() string {
 	}
 }
 
+func New(match message.Match) *Client {
+	return &Client{
+		Match: match,
+	}
+}
+
 func (c *Client) init() {
 	liveActivityKey, err := api_utils.GetLiveActivityKey(c.Match.MatchId)
 	if err != nil {
@@ -58,6 +64,7 @@ func (c *Client) PrintLiveMsg(msg message.LiveMsg) {
 	)
 }
 
+// 比赛状态更新
 func (c *Client) OnMatchUpdate() {
 	match, err := api_utils.GetSingleMatch(c.Match.MatchId)
 	if err != nil {

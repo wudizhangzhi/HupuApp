@@ -8,12 +8,14 @@ import (
 	"github.com/wudizhangzhi/HupuApp/gohupu/api_utils"
 	"github.com/wudizhangzhi/HupuApp/gohupu/live"
 	"github.com/wudizhangzhi/HupuApp/gohupu/menu"
+	"github.com/wudizhangzhi/HupuApp/gohupu/spider"
 )
 
 type LiveCmd struct {
 	GameType api.GameType `arg:"" name:"gameType" help:"比赛类型(nba/cba)."`
 }
 
+// 直播
 func (r *LiveCmd) Run() error {
 	matches, _ := api_utils.GetMatchesFromDate(r.GameType)
 	if len(matches) == 0 {
@@ -35,9 +37,7 @@ func (r *LiveCmd) Run() error {
 		return err
 	}
 	match := matches[idx]
-	client := live.Client{
-		Match: match,
-	}
+	client := live.New(match)
 	// // 退出过快可能导致print打印不显示
 	time.Sleep(1 * time.Second)
 	client.Start()
@@ -45,6 +45,16 @@ func (r *LiveCmd) Run() error {
 }
 
 type NewsCmd struct {
+	Region spider.Region `arg:"" name:"region" help:"领域(nba/cba/vote)."`
+}
+
+func (r *NewsCmd) Run() error {
+	spider.SpiderClient = spider.New()
+	bbsList, _ := spider.GetBBSList(r.Region)
+	// fmt.Printf("%+v\n", bbsList)
+	bbs := bbsList[0]
+	bbs.GetComments(1)
+	return nil
 }
 
 var cli struct {

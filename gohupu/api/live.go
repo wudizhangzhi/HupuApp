@@ -2,8 +2,8 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/wudizhangzhi/HupuApp"
 )
 
@@ -30,7 +30,7 @@ func init() {
 }
 
 // 状态初始化，获取基本信息接口
-func GetInitInfo() (*http.Response, error) {
+func GetInitInfo() (*resty.Response, error) {
 	params := map[string]string{
 		"div":        "5.7.79",
 		"crt":        fmt.Sprint(HupuApp.GetTimestamp()),
@@ -45,7 +45,7 @@ func GetInitInfo() (*http.Response, error) {
 }
 
 // 获取比赛直播信息
-func GetPlayByPlay(gid int) (*http.Response, error) {
+func GetPlayByPlay(gid int) (*resty.Response, error) {
 	params := map[string]string{
 		"gid":        fmt.Sprint(gid),
 		"lid":        "1",
@@ -63,7 +63,7 @@ func GetPlayByPlay(gid int) (*http.Response, error) {
 }
 
 // 获取比赛直播信息
-func GetLiveActivityKey(matchId string) (*http.Response, error) {
+func GetLiveActivityKey(matchId string) (*resty.Response, error) {
 	params := map[string]string{
 		"competitionType": "basketball",
 		"matchId":         matchId,
@@ -78,7 +78,7 @@ func GetLiveActivityKey(matchId string) (*http.Response, error) {
 }
 
 // 获取直播内容接口
-func GetLiveMsgList(matchId string, liveActivityKeyStr string, commentId string) (*http.Response, error) {
+func GetLiveMsgList(matchId string, liveActivityKeyStr string, commentId string) (*resty.Response, error) {
 	params := map[string]string{
 		"competitionType":    "basketball",
 		"matchId":            matchId,
@@ -97,7 +97,7 @@ func GetLiveMsgList(matchId string, liveActivityKeyStr string, commentId string)
 }
 
 // 获取比赛日程列表
-func GetScheduleList(gametype GameType, coursors ...string) (*http.Response, error) {
+func GetScheduleList(gametype GameType, coursors ...string) (*resty.Response, error) {
 	params := map[string]string{
 		"competitionTag": string(gametype),
 		"night":          "0",
@@ -115,7 +115,7 @@ func GetScheduleList(gametype GameType, coursors ...string) (*http.Response, err
 }
 
 // 根据比赛id获取比赛信息
-func GetSingleMatch(matchId string) (*http.Response, error) {
+func GetSingleMatch(matchId string) (*resty.Response, error) {
 	params := map[string]string{
 		"matchId":    matchId,
 		"night":      "0",
