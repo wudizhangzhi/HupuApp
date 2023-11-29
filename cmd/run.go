@@ -9,6 +9,7 @@ import (
 	"github.com/wudizhangzhi/HupuApp/gohupu/live"
 	"github.com/wudizhangzhi/HupuApp/gohupu/menu"
 	"github.com/wudizhangzhi/HupuApp/gohupu/spider"
+	"github.com/wudizhangzhi/HupuApp/gohupu/view"
 )
 
 type LiveCmd struct {
@@ -45,15 +46,19 @@ func (r *LiveCmd) Run() error {
 }
 
 type NewsCmd struct {
-	Region spider.Region `arg:"" name:"region" help:"领域(nba/cba/vote)."`
+	Region spider.Region `arg:"" name:"region" help:"领域(nba/cba/湿乎乎)."`
 }
 
 func (r *NewsCmd) Run() error {
 	spider.SpiderClient = spider.New()
-	bbsList, _ := spider.GetBBSList(r.Region)
+	// bbsList, _ := spider.GetBBSList(r.Region, 0)
 	// fmt.Printf("%+v\n", bbsList)
-	bbs := bbsList[0]
-	bbs.GetComments(1)
+	// if (len(bbsList)) > 0 {
+	// bbs := bbsList[0]
+	// bbs.GetComments(1)
+	// }
+	// view.LoadItems(bbsList)
+	view.Display(r.Region)
 	return nil
 }
 

@@ -15,9 +15,9 @@ import (
 type Region string
 
 const (
-	NBA  Region = "all-nba"
-	CBA  Region = "all-cba"
-	Vote Region = "vote" // 湿乎乎
+	NBA  Region = "nba"
+	CBA  Region = "cba"
+	Vote Region = "湿乎乎" // 湿乎乎
 )
 
 func (r Region) String() string {
@@ -30,6 +30,20 @@ func (r Region) String() string {
 		return "vote"
 	default:
 		return "all-nba"
+	}
+}
+
+// 对应帖子列表的selector
+func (r Region) GetBBSListSelector() string {
+	switch r {
+	case NBA:
+		return "div.text-list-model > div > div > div > div.t-info"
+	case CBA:
+		return "div.text-list-model > div > div > div > div.t-info"
+	case Vote:
+		return "div.bbs-sl-web-post > ul > li > div > div.post-title"
+	default:
+		return "div.bbs-sl-web-post > ul > li > div > div.post-title"
 	}
 }
 
@@ -58,8 +72,12 @@ type Comment struct {
 	Nickname  string
 }
 
-func GetBBSList(region Region) ([]BBS, error) {
-	url := "https://bbs.hupu.com/" + string(region)
+func GetBBSList(region Region, page int) ([]BBS, error) {
+	url := "https://bbs.hupu.com/" + region.String()
+	if page > 1 {
+		url += fmt.Sprintf("-%d", page)
+	}
+
 	bbsList := make([]BBS, 0)
 	resp, err := SpiderClient.R().
 		Get(url)
@@ -67,13 +85,12 @@ func GetBBSList(region Region) ([]BBS, error) {
 		return nil, err
 	}
 	// Load the HTML document
-
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(resp.Body()))
 	if err != nil {
 		return bbsList, nil
 	}
-	// Find the review items
-	doc.Find("div.text-list-model > div > div > div").
+	// Find the bbs items
+	doc.Find(region.GetBBSListSelector()).
 		Each(func(i int, s *goquery.Selection) {
 			// For each item found, get the title
 			selection := s.Find("div > a")
@@ -82,7 +99,7 @@ func GetBBSList(region Region) ([]BBS, error) {
 			lightCntS := s.Find("div.t-info > span.t-lights").Text()
 			replyCntS := s.Find("div.t-info > span.t-replies").Text()
 			label := s.Find("div.t-label > a").Text()
-			fmt.Printf("Review %d: 标题:%s 亮:%s 回复:%s\n", i, title, lightCntS, replyCntS)
+			fmt.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
 
 			uid := regexp.MustCompile(`\d+`).FindString(href)
 			lightCnt, _ := strconv.Atoi(lightCntS)

@@ -17,11 +17,11 @@ const (
 func (g GameType) String() string {
 	switch g {
 	case NBA:
-		return string(NBA)
+		return "nba"
 	case CBA:
-		return string(CBA)
+		return "cba"
 	default:
-		return string(NBA)
+		return "nba"
 	}
 }
 
@@ -99,7 +99,7 @@ func GetLiveMsgList(matchId string, liveActivityKeyStr string, commentId string)
 // 获取比赛日程列表
 func GetScheduleList(gametype GameType, coursors ...string) (*resty.Response, error) {
 	params := map[string]string{
-		"competitionTag": string(gametype),
+		"competitionTag": gametype.String(),
 		"night":          "0",
 		"V":              "7.5.59.01043",
 		"channel":        "hupuupdate",
