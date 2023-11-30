@@ -38,35 +38,47 @@
 
 ## 使用指南
 
+```bash
+Usage: Hupu <command>
+
+A command line tool for Hupu.
+
+Commands:
+  live            比赛直播.
+    <gameType>    比赛类型(nba/cba).
+
+  news            新闻、帖子.
+    <region>      领域(nba/cba/湿乎乎/步行街).
+
+Flags:
+  -h, --help     Show context-sensitive help.
+      --debug    Enable debug mode.
+
+Run "Hupu <command> --help" for more information on a command.
+```
+
 方向键上下控制选项，回车选择，ctrl+c中途退出。
 
 ## 虎扑直播
+
+```bash
+Hupu live nba
+```
 
 ![hupu_live](images/hupu_live.gif)
 
 ![hupu_live_contrast](images/hupu_live_contrast.gif)
 
-## 球队数据排行
-
-![hupu_teamranks](images/hupu_teamranks.gif)
-
-## 球员数据
-
-![hupu_playerdata](images/hupu_playerdata.gif)
-
-![hupu_playerdata_injury](images/hupu_playerdata_injury.gif)
-
 ## 虎扑新闻
 
-![hupu_news](images/hupu_news.gif)
+```bash
+Hupu news 步行街
+```
 
-## Hupu Api
-
-[Document](https://wudizhangzhi.github.io/%E7%88%AC%E8%99%AB/hupu-go-2-0-http-api.html)
+![hupu_news](images/news_v2.gif)
 
 ## To-do list
 
 - [ ] go版本其他功能(新闻，数据等)
-- [ ] 文字美化
-- [ ] 接口参数可配化
-- [ ] 接口函数等命名规范化
+  - [x] 新闻
+  - [ ] 数据

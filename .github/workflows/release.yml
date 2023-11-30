@@ -23,5 +23,5 @@ jobs:
         goarch: ${{ matrix.goarch }}
         goversion: "1.16"
         project_path: "./cmd/"
-        binary_name: "hupu"
+        binary_name: "Hupu"
         extra_files: LICENSE README.md

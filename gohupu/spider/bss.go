@@ -191,7 +191,7 @@ func (bbs *BBS) GetDetail() (string, error) {
 	}
 	content := ""
 	// 选择第一个
-	doc.Find("div.thread-content-detail:nth-match(1) > p").
+	doc.Find("div[class^=post-content_main-post-info] > div >div.thread-content-detail > p").
 		Each(func(i int, s *goquery.Selection) {
 			content += s.Text() + "\n"
 		})
