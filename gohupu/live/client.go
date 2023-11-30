@@ -2,7 +2,6 @@ package live
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"strconv"
@@ -10,9 +9,8 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/tidwall/gjson"
 	"github.com/wudizhangzhi/HupuApp"
-	"github.com/wudizhangzhi/HupuApp/gohupu/api"
+	"github.com/wudizhangzhi/HupuApp/gohupu/api_utils"
 	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
 	"github.com/wudizhangzhi/HupuApp/gohupu/message"
 )
@@ -38,26 +36,24 @@ func (c Client) ColoredScore() string {
 	}
 }
 
-func (c *Client) init() {
-	// 获取比赛的activity key
-	resp, err := api.APIQueryLiveActivityKey(c.Match.MatchId)
-	if err != nil {
-		logger.Error.Fatal(err)
+func New(match message.Match) *Client {
+	return &Client{
+		Match: match,
 	}
-	defer resp.Body.Close()
+}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+func (c *Client) init() {
+	liveActivityKey, err := api_utils.GetLiveActivityKey(c.Match.MatchId)
 	if err != nil {
 		logger.Error.Fatal(err)
 	}
-	liveActivityKey := gjson.GetBytes(respBody, "result.liveActivityKey").String()
 	c.liveActivityKey = liveActivityKey
 
 	logger.Info.Printf("liveActivityKey: %s\n", liveActivityKey)
 }
 
 // 格式化直播消息
-func (c *Client) PrintLiveMsg(msg message.MatchTextMsg) {
+func (c *Client) PrintLiveMsg(msg message.LiveMsg) {
 	fmt.Fprintf(color.Output, "%s %s %s %s| %s: %s\n",
 		c.Match.AwayTeamName,
 		c.ColoredScore(),
@@ -68,8 +64,9 @@ func (c *Client) PrintLiveMsg(msg message.MatchTextMsg) {
 	)
 }
 
+// 比赛状态更新
 func (c *Client) OnMatchUpdate() {
-	match, err := api.GetSingleMatch(c.Match.MatchId)
+	match, err := api_utils.GetSingleMatch(c.Match.MatchId)
 	if err != nil {
 		logger.Error.Fatal(err)
 	}
@@ -80,7 +77,7 @@ func (c *Client) OnMatchUpdate() {
 	}
 }
 
-func (c *Client) isNewComment(msg message.MatchTextMsg) bool {
+func (c *Client) isNewComment(msg message.LiveMsg) bool {
 	// logger.Info.Printf("对比comment: LastCommentTime:%v LastCommentId:%v msg:%+v", c.LastCommentTime, c.LastCommentId, msg)
 	if c.LastCommentTime == "" {
 		return true
@@ -98,7 +95,7 @@ func (c *Client) isNewComment(msg message.MatchTextMsg) bool {
 }
 
 func (c *Client) OnLiveMessage() {
-	matchTextMsgs, err := api.QueryLiveTextList(c.Match.MatchId, c.liveActivityKey, "")
+	matchTextMsgs, err := api_utils.GetLiveMsgList(c.Match.MatchId, c.liveActivityKey, "")
 	if err != nil {
 		logger.Error.Fatal(err)
 	}
@@ -136,6 +133,7 @@ OutLoop:
 	for {
 		select {
 		case <-c.InterruptCh:
+			logger.Info.Println("收到中断信号，退出直播间")
 			break OutLoop
 		case <-c.Th.C:
 			c.OnLiveMessage()

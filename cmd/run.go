@@ -1,20 +1,26 @@
 package main
 
 import (
-	"log"
 	"time"
 
+	"github.com/alecthomas/kong"
 	"github.com/wudizhangzhi/HupuApp/gohupu/api"
+	"github.com/wudizhangzhi/HupuApp/gohupu/api_utils"
 	"github.com/wudizhangzhi/HupuApp/gohupu/live"
 	"github.com/wudizhangzhi/HupuApp/gohupu/menu"
+	"github.com/wudizhangzhi/HupuApp/gohupu/spider"
+	"github.com/wudizhangzhi/HupuApp/gohupu/view"
 )
 
-func main() {
+type LiveCmd struct {
+	GameType api.GameType `arg:"" name:"gameType" help:"比赛类型(nba/cba)."`
+}
 
-	matches, _ := api.GetMatchesFromDate(api.NBA)
-	// matches, _ := api.GetMatchesFromDate(api.NBA, time.Now().AddDate(0, 0, -10).Format("20060102"))
+// 直播
+func (r *LiveCmd) Run() error {
+	matches, _ := api_utils.GetMatchesFromDate(r.GameType)
 	if len(matches) == 0 {
-		matches, _ = api.GetAnyMatches(api.NBA, 10, false)
+		matches, _ = api_utils.GetAnyMatches(api.NBA, 10, false)
 	}
 	interfaceItems := make([]interface{}, 0)
 	for _, item := range matches {
@@ -29,14 +35,48 @@ func main() {
 
 	idx, err := m.Start()
 	if err != nil {
-		log.Fatal(err)
-		return
+		return err
 	}
 	match := matches[idx]
-	client := live.Client{
-		Match: match,
-	}
+	client := live.New(match)
 	// // 退出过快可能导致print打印不显示
 	time.Sleep(1 * time.Second)
 	client.Start()
+	return nil
+}
+
+type NewsCmd struct {
+	Region spider.Region `arg:"" name:"region" help:"领域(nba/cba/湿乎乎/步行街)."`
+}
+
+func (r *NewsCmd) Run() error {
+	spider.New()
+	view.NewApp()
+	bbsView := view.NewBBSView(r.Region)
+	bbsView.Display()
+	return nil
+}
+
+var cli struct {
+	Debug bool `help:"Enable debug mode."`
+
+	Live LiveCmd `cmd:"" help:"比赛直播."`
+	News NewsCmd `cmd:"" help:"新闻、帖子."`
+}
+
+func main() {
+	ctx := kong.Parse(&cli,
+		kong.Name("Hupu"),
+		kong.Description("A command line tool for Hupu."),
+		kong.UsageOnError(),
+		kong.ConfigureHelp(kong.HelpOptions{
+			Tree:      true,
+			Compact:   true,
+			Summary:   true,
+			FlagsLast: true,
+			// NoExpandSubcommands: true,
+		}))
+	// TODO 读取配置, 注册signal
+	err := ctx.Run()
+	ctx.FatalIfErrorf(err)
 }

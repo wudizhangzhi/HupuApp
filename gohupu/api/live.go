@@ -1,18 +1,10 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"sort"
-	"time"
 
-	"github.com/tidwall/gjson"
-
+	"github.com/go-resty/resty/v2"
 	"github.com/wudizhangzhi/HupuApp"
-	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
-	"github.com/wudizhangzhi/HupuApp/gohupu/message"
 )
 
 type GameType string
@@ -22,44 +14,38 @@ const (
 	CBA GameType = "cba"
 )
 
+func (g GameType) String() string {
+	switch g {
+	case NBA:
+		return "nba"
+	case CBA:
+		return "cba"
+	default:
+		return "nba"
+	}
+}
+
 func init() {
 
 }
 
-func APIStatusInit() (*http.Response, error) {
+// 状态初始化，获取基本信息接口
+func GetInitInfo() (*resty.Response, error) {
 	params := map[string]string{
 		"div":        "5.7.79",
 		"crt":        fmt.Sprint(HupuApp.GetTimestamp()),
 		"tag":        "nba",
 		"night":      "0",
 		"channel":    "myapp",
-		"client":     HupuHttpobj.IMEI,
+		"client":     HttpSession.IMEI,
 		"time_zone":  "Asia/Shanghai",
-		"android_id": HupuHttpobj.AndroidId,
+		"android_id": HttpSession.AndroidId,
 	}
-	return HupuHttpobj.Request("GET", HupuApp.API_STATUS_INIT, nil, params)
-}
-
-// 获取接口ip地址
-func GetIpAddress() []string {
-	resp, err := APIStatusInit()
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	addressJson := gjson.GetBytes(respBody, "result.redirector").String()
-
-	var address []string
-	json.Unmarshal([]byte(addressJson), &address)
-	return address
+	return HttpSession.Request("GET", HupuApp.API_STATUS_INIT, nil, params)
 }
 
 // 获取比赛直播信息
-func APIGetPlayByPlay(gid int) (*http.Response, error) {
+func GetPlayByPlay(gid int) (*resty.Response, error) {
 	params := map[string]string{
 		"gid":        fmt.Sprint(gid),
 		"lid":        "1",
@@ -69,28 +55,30 @@ func APIGetPlayByPlay(gid int) (*http.Response, error) {
 		"channel":    "myapp",
 		"night":      "0",
 		"crt":        fmt.Sprint(HupuApp.GetTimestamp()),
-		"client":     HupuHttpobj.IMEI,
+		"client":     HttpSession.IMEI,
 		"time_zone":  "Asia/Shanghai",
-		"android_id": HupuHttpobj.AndroidId,
+		"android_id": HttpSession.AndroidId,
 	}
-	return HupuHttpobj.Request("GET", HupuApp.API_GET_PLAY_BY_PLAY, nil, params)
+	return HttpSession.Request("GET", HupuApp.API_GET_PLAY_BY_PLAY, nil, params)
 }
 
-func APIQueryLiveActivityKey(matchId string) (*http.Response, error) {
+// 获取比赛直播信息
+func GetLiveActivityKey(matchId string) (*resty.Response, error) {
 	params := map[string]string{
 		"competitionType": "basketball",
 		"matchId":         matchId,
 		"channel":         "hupuupdate",
 		"night":           "0",
 		"crt":             fmt.Sprint(HupuApp.GetTimestamp()),
-		"_imei":           HupuHttpobj.IMEI,
+		"_imei":           HttpSession.IMEI,
 		"time_zone":       "Asia/Shanghai",
-		"android_id":      HupuHttpobj.AndroidId,
+		"android_id":      HttpSession.AndroidId,
 	}
-	return HupuHttpobj.Request("GET", HupuApp.API_LIVE_QUERY_LIVE_ACTIVITY_KEY, nil, params)
+	return HttpSession.Request("GET", HupuApp.API_LIVE_QUERY_LIVE_ACTIVITY_KEY, nil, params)
 }
 
-func APIQueryLiveTextList(matchId string, liveActivityKeyStr string, commentId string) (*http.Response, error) {
+// 获取直播内容接口
+func GetLiveMsgList(matchId string, liveActivityKeyStr string, commentId string) (*resty.Response, error) {
 	params := map[string]string{
 		"competitionType":    "basketball",
 		"matchId":            matchId,
@@ -98,171 +86,45 @@ func APIQueryLiveTextList(matchId string, liveActivityKeyStr string, commentId s
 		"channel":            "hupuupdate",
 		"night":              "0",
 		"crt":                fmt.Sprint(HupuApp.GetTimestamp()),
-		"_imei":              HupuHttpobj.IMEI,
+		"_imei":              HttpSession.IMEI,
 		"time_zone":          "Asia/Shanghai",
-		"android_id":         HupuHttpobj.AndroidId,
+		"android_id":         HttpSession.AndroidId,
 	}
 	if commentId != "" {
 		params["commentId"] = commentId
 	}
-	return HupuHttpobj.Request("GET", HupuApp.API_LIVE_QUERY_LIVE_TEXT_LIST, nil, params)
+	return HttpSession.Request("GET", HupuApp.API_LIVE_QUERY_LIVE_TEXT_LIST, nil, params)
 }
 
-func APIGetScheduleList(gametype GameType, coursors ...string) (*http.Response, error) {
+// 获取比赛日程列表
+func GetScheduleList(gametype GameType, coursors ...string) (*resty.Response, error) {
 	params := map[string]string{
-		"competitionTag": fmt.Sprint(gametype),
+		"competitionTag": gametype.String(),
 		"night":          "0",
 		"V":              "7.5.59.01043",
 		"channel":        "hupuupdate",
 		"crt":            fmt.Sprint(HupuApp.GetTimestamp()),
-		"_imei":          HupuHttpobj.IMEI,
+		"_imei":          HttpSession.IMEI,
 		"time_zone":      "Asia/Shanghai",
-		"android_id":     HupuHttpobj.AndroidId,
+		"android_id":     HttpSession.AndroidId,
 	}
 	if len(coursors) > 0 {
 		params["coursor"] = coursors[0]
 	}
-	return HupuHttpobj.Request("GET", HupuApp.API_SCHEDULE_LIST, nil, params)
+	return HttpSession.Request("GET", HupuApp.API_SCHEDULE_LIST, nil, params)
 }
 
-func APISingleMatch(matchId string) (*http.Response, error) {
+// 根据比赛id获取比赛信息
+func GetSingleMatch(matchId string) (*resty.Response, error) {
 	params := map[string]string{
 		"matchId":    matchId,
 		"night":      "0",
 		"V":          "7.5.59.01043",
 		"channel":    "hupuupdate",
 		"crt":        fmt.Sprint(HupuApp.GetTimestamp()),
-		"_imei":      HupuHttpobj.IMEI,
+		"_imei":      HttpSession.IMEI,
 		"time_zone":  "Asia/Shanghai",
-		"android_id": HupuHttpobj.AndroidId,
+		"android_id": HttpSession.AndroidId,
 	}
-	return HupuHttpobj.Request("GET", HupuApp.API_SINGLE_MATCH, nil, params)
-}
-
-func GetSingleMatch(matchId string) (message.Match, error) {
-	match := message.Match{}
-
-	resp, err := APISingleMatch(matchId)
-	if err != nil {
-		return match, err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return match, err
-	}
-	result := gjson.GetBytes(respBody, "result").Value()
-	byteResult, _ := json.Marshal(result)
-	json.Unmarshal(byteResult, &match)
-	logger.Info.Printf("比赛状态: %+v", result)
-	return match, nil
-}
-
-// 获取比赛
-func GetMatchesFromDate(gametype GameType, dates ...string) ([]message.Match, error) {
-	matches := make([]message.Match, 0)
-	schedule, err := GetScheduleList(gametype)
-	if err != nil {
-		return matches, nil
-	}
-	var date string
-	if len(dates) == 0 {
-		date = time.Now().Format("20060102")
-	} else {
-		date = dates[0]
-	}
-
-	for _, game := range schedule.GameList {
-		logger.Info.Printf("对比日期: %s - %s", date, game.Day)
-		if game.Day == date {
-			matches = append(matches, game.MatchList...)
-			break
-		}
-	}
-	return matches, nil
-}
-
-func GetAnyMatches(gameType GameType, count int, reverse bool) ([]message.Match, error) {
-	today := time.Now()
-	matches := make([]message.Match, 0)
-	schedule, err := GetScheduleList(gameType)
-	if err != nil {
-		return matches, nil
-	}
-	for _, game := range schedule.GameList {
-		t, _ := time.Parse("20060102", game.Day)
-		if t.Unix() <= today.Unix() {
-			matches = append(matches, game.MatchList...)
-		}
-	}
-	sort.Slice(matches, func(i, j int) bool {
-		if reverse {
-			return matches[i].ChinaStartTime < matches[j].ChinaStartTime
-		} else {
-			return matches[i].ChinaStartTime > matches[j].ChinaStartTime
-		}
-	})
-	if count < len(matches)-1 {
-		matches = matches[:count]
-	}
-	return matches, nil
-}
-
-func GetScheduleList(gametype GameType) (message.GameSchedule, error) {
-	gameSchdule := message.GameSchedule{}
-	resp, err := APIGetScheduleList(gametype)
-	if err != nil {
-		return gameSchdule, err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return gameSchdule, err
-	}
-
-	byteResult, _ := json.Marshal(gjson.GetBytes(respBody, "result").Value())
-	json.Unmarshal(byteResult, &gameSchdule)
-
-	// DEBUG
-	total := 0
-	for _, game := range gameSchdule.GameList {
-		total += len(game.MatchList)
-	}
-	logger.Info.Printf("ScheduleList返回: %d 天 %d 场比赛", len(gameSchdule.GameList), total)
-	return gameSchdule, nil
-}
-
-func QueryLiveTextList(matchId string, liveActivityKeyStr string, commentId string) ([]message.MatchTextMsg, error) {
-	matchTextMsgs := []message.MatchTextMsg{}
-
-	resp, err := APIQueryLiveTextList(matchId, liveActivityKeyStr, commentId)
-	if err != nil {
-		return matchTextMsgs, err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return matchTextMsgs, err
-	}
-	for _, msg := range gjson.GetBytes(respBody, "result").Array() {
-		matchTextMsg := message.MatchTextMsg{}
-		byteResult, _ := json.Marshal(msg.Value())
-		json.Unmarshal(byteResult, &matchTextMsg)
-		// 特殊处理, 似乎一会儿是int，一会儿是string
-		matchTextMsg.CommentId = msg.Get("commentId").String()
-		matchTextMsg.PreviousCommentId = msg.Get("previousCommentId").String()
-		matchTextMsgs = append(matchTextMsgs, matchTextMsg)
-		logger.Info.Printf("比赛消息: %v", msg.Value())
-		// logger.Info.Printf("比赛消息装载后: %v", matchTextMsg)
-	}
-	// sort
-	sort.Slice(matchTextMsgs, func(i, j int) bool {
-		ti, _ := HupuApp.GetTimeFromString(matchTextMsgs[i].Time)
-		tj, _ := HupuApp.GetTimeFromString(matchTextMsgs[j].Time)
-		return ti.Before((tj))
-	})
-	return matchTextMsgs, nil
+	return HttpSession.Request("GET", HupuApp.API_SINGLE_MATCH, nil, params)
 }
