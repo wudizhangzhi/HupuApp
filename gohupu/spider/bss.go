@@ -10,6 +10,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/wudizhangzhi/HupuApp"
+	"github.com/wudizhangzhi/HupuApp/gohupu/logger"
 )
 
 type Region string
@@ -99,11 +100,12 @@ func GetBBSList(region Region, page int) ([]BBS, error) {
 			lightCntS := s.Find("div.t-info > span.t-lights").Text()
 			replyCntS := s.Find("div.t-info > span.t-replies").Text()
 			label := s.Find("div.t-label > a").Text()
-			fmt.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
+			// fmt.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
+			logger.Debug.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
 
 			uid := regexp.MustCompile(`\d+`).FindString(href)
-			lightCnt, _ := strconv.Atoi(lightCntS)
-			replyCnt, _ := strconv.Atoi(replyCntS)
+			lightCnt, _ := strconv.Atoi(regexp.MustCompile(`\d+`).FindString(lightCntS))
+			replyCnt, _ := strconv.Atoi(regexp.MustCompile(`\d+`).FindString(replyCntS))
 			bbsList = append(bbsList, BBS{
 				Uid:      uid,
 				Title:    title,
@@ -132,6 +134,8 @@ func (bbs *BBS) GetDetail() (string, error) {
 		Each(func(i int, s *goquery.Selection) {
 			content += s.Text() + "\n"
 		})
+	bbs.Content = content
+	logger.Debug.Printf("帖子内容: %s\n", content)
 	return bbs.Content, nil
 }
 
@@ -167,7 +171,8 @@ func (bbs *BBS) GetComments(page int) ([]Comment, error) {
 		})
 	})
 	for _, comment := range comments {
-		fmt.Printf("评论: %+v\n", comment)
+		// fmt.Printf("评论: %+v\n", comment)
+		logger.Debug.Printf("评论: %+v\n", comment)
 	}
 	return comments, nil
 }
