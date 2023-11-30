@@ -9,10 +9,11 @@ import (
 var SpiderClient *resty.Client
 
 func New() *resty.Client {
-	return resty.New().
+	SpiderClient = resty.New().
 		SetPreRequestHook(func(c *resty.Client, r *http.Request) error {
 			// fmt.Printf("Request: %+v\n", r.URL)
 			logger.Debug.Printf("Request: %+v\n", r.URL)
 			return nil
 		})
+	return SpiderClient
 }

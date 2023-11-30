@@ -46,19 +46,14 @@ func (r *LiveCmd) Run() error {
 }
 
 type NewsCmd struct {
-	Region spider.Region `arg:"" name:"region" help:"领域(nba/cba/湿乎乎)."`
+	Region spider.Region `arg:"" name:"region" help:"领域(nba/cba/湿乎乎/步行街)."`
 }
 
 func (r *NewsCmd) Run() error {
-	spider.SpiderClient = spider.New()
-	// bbsList, _ := spider.GetBBSList(r.Region, 0)
-	// fmt.Printf("%+v\n", bbsList)
-	// if (len(bbsList)) > 0 {
-	// bbs := bbsList[0]
-	// bbs.GetComments(1)
-	// }
-	// view.LoadItems(bbsList)
-	view.Display(r.Region)
+	spider.New()
+	view.NewApp()
+	bbsView := view.NewBBSView(r.Region)
+	bbsView.Display()
 	return nil
 }
 
@@ -66,7 +61,7 @@ var cli struct {
 	Debug bool `help:"Enable debug mode."`
 
 	Live LiveCmd `cmd:"" help:"比赛直播."`
-	News NewsCmd `cmd:"" help:"新闻."`
+	News NewsCmd `cmd:"" help:"新闻、帖子."`
 }
 
 func main() {

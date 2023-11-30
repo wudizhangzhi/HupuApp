@@ -16,21 +16,28 @@ import (
 type Region string
 
 const (
-	NBA  Region = "nba"
-	CBA  Region = "cba"
-	Vote Region = "湿乎乎" // 湿乎乎
+	NBA        Region = "nba"
+	CBA        Region = "cba"
+	Vote       Region = "湿乎乎"
+	TopicDaily Region = "步行街" // 步行街主干道
+	// Gambia     Region = "步行街"
 )
 
+// 返回链接中对应的region部分, https://bbs.hupu.com/<region>
 func (r Region) String() string {
 	switch r {
 	case NBA:
-		return "all-nba"
+		return "502-hot"
 	case CBA:
-		return "all-cba"
+		return "cba"
 	case Vote:
 		return "vote"
+	// case Gambia:
+	// 	return "all-gambia"
+	case TopicDaily:
+		return "topic-daily"
 	default:
-		return "all-nba"
+		return "502-hot"
 	}
 }
 
@@ -38,13 +45,87 @@ func (r Region) String() string {
 func (r Region) GetBBSListSelector() string {
 	switch r {
 	case NBA:
-		return "div.text-list-model > div > div > div > div.t-info"
+		return "div.bbs-sl-web-post > ul > li > div.bbs-sl-web-post-layout"
 	case CBA:
-		return "div.text-list-model > div > div > div > div.t-info"
+		return "div.bbs-sl-web-post > ul > li > div.bbs-sl-web-post-layout"
 	case Vote:
-		return "div.bbs-sl-web-post > ul > li > div > div.post-title"
+		return "div.bbs-sl-web-post > ul > li > div.bbs-sl-web-post-layout"
 	default:
-		return "div.bbs-sl-web-post > ul > li > div > div.post-title"
+		return "div.bbs-sl-web-post > ul > li > div.bbs-sl-web-post-layout"
+	}
+}
+
+type GetBBSInfoFunc func(i int, s *goquery.Selection, region Region, page int) BBS
+
+// 湿乎乎、步行街等获取帖子信息的方法
+func VoteGetBBS(i int, s *goquery.Selection, region Region, page int) BBS {
+	selection := s.Find("div.post-title > a")
+	title := selection.Text()
+	href, _ := selection.Attr("href")
+	nickname := s.Find("div.post-auth > a").Text()
+	postTime := s.Find("div.post-time").Text()
+	viewReplyCntS := s.Find("div.post-datum").Text()
+	viewReplyCntList := strings.Split(viewReplyCntS, "/")
+	replyCnt := 0
+	viewCnt := 0
+	if len(viewReplyCntList) == 2 {
+		replyCnt, _ = strconv.Atoi(regexp.MustCompile(`\d+`).FindString(viewReplyCntList[0]))
+		viewCnt, _ = strconv.Atoi(regexp.MustCompile(`\d+`).FindString(viewReplyCntList[1]))
+	}
+	label := s.Find("div.t-label > a").Text()
+	uid := regexp.MustCompile(`\d+`).FindString(href)
+	logger.Debug.Printf("UID.%d: UID:%s 标题:%s 作者:%s 回复/浏览:%s\n", i*page+1, uid, title, nickname, viewReplyCntS)
+
+	return BBS{
+		Uid:      uid,
+		Title:    title,
+		Nickname: nickname,
+		ReplyCnt: replyCnt,
+		ViewCnt:  viewCnt,
+		Href:     href,
+		Label:    label,
+		PostTime: postTime,
+	}
+}
+
+// NBA/CBA获取帖子信息的方法
+// 暂时不需要，使用类似步行街的页面了
+func NBAGetBBS(i int, s *goquery.Selection, region Region, page int) BBS {
+	selection := s.Find("div > a")
+	title := selection.Text()
+	href, _ := selection.Attr("href")
+	lightCntS := s.Find("div.t-info > span.t-lights").Text()
+	replyCntS := s.Find("div.t-info > span.t-replies").Text()
+	label := s.Find("div.t-label > a").Text()
+	// fmt.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
+	logger.Debug.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
+
+	uid := regexp.MustCompile(`\d+`).FindString(href)
+	lightCnt, _ := strconv.Atoi(regexp.MustCompile(`\d+`).FindString(lightCntS))
+	replyCnt, _ := strconv.Atoi(regexp.MustCompile(`\d+`).FindString(replyCntS))
+	return BBS{
+		Uid:      uid,
+		Title:    title,
+		LightCnt: lightCnt,
+		ReplyCnt: replyCnt,
+		Href:     href,
+		Label:    label,
+	}
+}
+
+// 获取帖子信息的方法
+func (r Region) GetBBS(i int, s *goquery.Selection, page int) BBS {
+	switch r {
+	case NBA:
+		return VoteGetBBS(i, s, r, page)
+	case CBA:
+		return VoteGetBBS(i, s, r, page)
+	case Vote:
+		return VoteGetBBS(i, s, r, page)
+	case TopicDaily:
+		return VoteGetBBS(i, s, r, page)
+	default:
+		return VoteGetBBS(i, s, r, page)
 	}
 }
 
@@ -55,13 +136,12 @@ type BBS struct {
 	Href     string `comment:"链接"`
 	Label    string `comment:"标签"`
 	ReplyCnt int    `comment:"回复"`
+	ViewCnt  int    `comment:"浏览"`
 	LightCnt int    `comment:"亮了"`
 	Content  string `comment:"内容"`
-}
-
-type User struct {
-	Uid      string
-	Nickname string
+	// Author   User   `comment:"作者"`
+	Nickname string `comment:"作者"`
+	PostTime string `comment:"发帖时间"`
 }
 
 type Comment struct {
@@ -93,27 +173,7 @@ func GetBBSList(region Region, page int) ([]BBS, error) {
 	// Find the bbs items
 	doc.Find(region.GetBBSListSelector()).
 		Each(func(i int, s *goquery.Selection) {
-			// For each item found, get the title
-			selection := s.Find("div > a")
-			title := selection.Text()
-			href, _ := selection.Attr("href")
-			lightCntS := s.Find("div.t-info > span.t-lights").Text()
-			replyCntS := s.Find("div.t-info > span.t-replies").Text()
-			label := s.Find("div.t-label > a").Text()
-			// fmt.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
-			logger.Debug.Printf("No.%d: 标题:%s 亮:%s 回复:%s\n", i*page+1, title, lightCntS, replyCntS)
-
-			uid := regexp.MustCompile(`\d+`).FindString(href)
-			lightCnt, _ := strconv.Atoi(regexp.MustCompile(`\d+`).FindString(lightCntS))
-			replyCnt, _ := strconv.Atoi(regexp.MustCompile(`\d+`).FindString(replyCntS))
-			bbsList = append(bbsList, BBS{
-				Uid:      uid,
-				Title:    title,
-				LightCnt: lightCnt,
-				ReplyCnt: replyCnt,
-				Href:     href,
-				Label:    label,
-			})
+			bbsList = append(bbsList, region.GetBBS(i, s, page))
 		})
 	return bbsList, nil
 }
@@ -130,7 +190,8 @@ func (bbs *BBS) GetDetail() (string, error) {
 		return bbs.Content, err
 	}
 	content := ""
-	doc.Find("div.thread-content-detail > p").
+	// 选择第一个
+	doc.Find("div.thread-content-detail:nth-match(1) > p").
 		Each(func(i int, s *goquery.Selection) {
 			content += s.Text() + "\n"
 		})

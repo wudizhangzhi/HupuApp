@@ -166,6 +166,9 @@ func (b *BBSViewT) PrevPageBBS() {
 
 // 评论下一页
 func (b *BBSViewT) NextPageComments() {
+	if BBSView.SelectedBBS.Uid == "" {
+		return
+	}
 	b.CommentPage += 1
 	BBSView.Comments, _ = BBSView.SelectedBBS.GetComments(b.CommentPage)
 	b.RefreshComments()
@@ -174,6 +177,9 @@ func (b *BBSViewT) NextPageComments() {
 
 // 评论上一页
 func (b *BBSViewT) PrevPageComments() {
+	if BBSView.SelectedBBS.Uid == "" {
+		return
+	}
 	b.CommentPage -= 1
 	if b.CommentPage < 1 {
 		b.CommentPage = 1
@@ -189,7 +195,7 @@ func (b *BBSViewT) RefreshBBSList() {
 	for i, item := range b.BBSList {
 		b.BBSListView.AddItem(
 			fmt.Sprintf("(%d) %s", i+1, item.Title),
-			fmt.Sprintf("   亮:%d 回复:%d", item.LightCnt, item.ReplyCnt),
+			fmt.Sprintf("   用户:%s 回复/浏览:%d/%d", item.Nickname, item.ReplyCnt, item.ViewCnt),
 			0,
 			nil,
 		)
@@ -199,7 +205,7 @@ func (b *BBSViewT) RefreshBBSList() {
 // 刷新帖子内容
 func (b *BBSViewT) RefreshPost() {
 	b.PostView.Clear()
-	fmt.Fprint(b.PostView, b.PostContent)
+	fmt.Fprintf(b.PostView, "https://bbs.hupu.com/%s\n%s", b.SelectedBBS.Href, b.PostContent)
 	logger.Debug.Printf("更新post content: %s", b.PostContent)
 }
 
@@ -210,7 +216,7 @@ func (b *BBSViewT) RefreshComments() {
 		b.CommentsView.AddItem(
 			fmt.Sprintf("(%d) %s", i+1, item.Content),
 			fmt.Sprintf(
-				"   昵称:%s 亮:%d 时间:%s 位置:%s",
+				"   用户:%s 亮:%d 时间:%s 位置:%s",
 				item.Nickname,
 				item.LightCnt,
 				item.ReplyTime.Format("2006-01-02 15:04:05"),
