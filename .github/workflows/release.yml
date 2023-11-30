@@ -1,27 +1,33 @@
-on: 
+on:
   release:
     types: [created]
-
+permissions:
+  contents: write
+  packages: write
 jobs:
   releases-matrix:
     name: Release Go Binary
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # build and publish in parallel: linux/386, linux/amd64, windows/386, windows/amd64, darwin/amd64 
+        # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
         goos: [linux, windows, darwin]
-        goarch: ["386", amd64]
-        exclude:  
+        goarch: ["386", amd64, arm64]
+        exclude:
           - goarch: "386"
-            goos: darwin 
+            goos: darwin
+          - goarch: arm64
+            goos: windows
     steps:
-    - uses: actions/checkout@v2
-    - uses: wangyoucao577/go-release-action@v1.18
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        goversion: "1.16"
-        project_path: "./cmd/"
-        binary_name: "Hupu"
-        extra_files: LICENSE README.md
+      - uses: actions/checkout@v3
+      - name: Go Release Binaries
+        uses: wangyoucao577/go-release-action@v1.40
+        with:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          goversion: "1.16"
+          project_path: "./cmd/"
+          binary_name: "Hupu"
+          extra_files: LICENSE README.md
